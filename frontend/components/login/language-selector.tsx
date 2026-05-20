@@ -1,25 +1,18 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import { useLang } from './language-context';
+import type { LangCode } from './language-context';
 
 const LANGUAGES = [
-  { code: 'VN', label: 'Tiếng Việt', flag: '🇻🇳' },
-  { code: 'EN', label: 'English', flag: '🇬🇧' },
-] as const;
-
-type LangCode = (typeof LANGUAGES)[number]['code'];
+  { code: 'VN' as LangCode, label: 'Tiếng Việt', flag: '🇻🇳' },
+  { code: 'EN' as LangCode, label: 'English', flag: '🇬🇧' },
+];
 
 export function LanguageSelector() {
-  const [selected, setSelected] = useState<LangCode>('VN');
+  const { lang: selected, setLang } = useLang();
   const [isOpen, setIsOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const stored = localStorage.getItem('lang') as LangCode | null;
-    if (stored && LANGUAGES.some((l) => l.code === stored)) {
-      setSelected(stored);
-    }
-  }, []);
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
@@ -32,8 +25,7 @@ export function LanguageSelector() {
   }, []);
 
   function select(code: LangCode) {
-    setSelected(code);
-    localStorage.setItem('lang', code);
+    setLang(code);
     setIsOpen(false);
   }
 

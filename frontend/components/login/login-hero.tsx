@@ -1,6 +1,21 @@
 'use client';
 
 import { useState } from 'react';
+import Image from 'next/image';
+import { useLang } from './language-context';
+
+const TRANSLATIONS = {
+  VN: {
+    subtitle: 'Bắt đầu hành trình của bạn cùng SAA 2025.',
+    cta: 'Đăng nhập để khám phá!',
+    loginBtn: 'ĐĂNG NHẬP với Google',
+  },
+  EN: {
+    subtitle: 'Begin your journey with SAA 2025.',
+    cta: 'Log in to explore!',
+    loginBtn: 'LOGIN With Google',
+  },
+} as const;
 
 const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL ?? 'http://localhost:3000';
 
@@ -15,8 +30,18 @@ function GoogleIcon() {
   );
 }
 
+const MONTSERRAT_STYLE: React.CSSProperties = {
+  fontFamily: 'var(--font-montserrat)',
+  fontWeight: 700,
+  fontSize: '20px',
+  lineHeight: '40px',
+  letterSpacing: '0.5px',
+};
+
 export function LoginHero() {
   const [loading, setLoading] = useState(false);
+  const { lang } = useLang();
+  const t = TRANSLATIONS[lang];
 
   function handleLogin() {
     setLoading(true);
@@ -24,41 +49,48 @@ export function LoginHero() {
   }
 
   return (
-    <main className="flex-1 relative flex items-center overflow-hidden">
-      {/* Key visual — colorful wave background (right side) */}
+    <main className="h-screen relative flex items-center overflow-hidden">
+      {/* Key visual — artwork background image from Figma */}
+      <Image
+        src="/key-visual.jpg"
+        alt=""
+        aria-hidden="true"
+        fill
+        priority
+        className="object-cover"
+      />
+      {/* Left gradient overlay — Figma "Rectangle 57" */}
       <div
         className="absolute inset-0"
-        style={{
-          background:
-            'radial-gradient(ellipse at 75% 50%, #c85a20 0%, #d4863a 18%, #3a8b5c 38%, #1a4a7a 58%, #0a1628 78%)',
-        }}
+        style={{ background: 'linear-gradient(90deg, #00101A 0%, #00101A 25.41%, rgba(0, 16, 26, 0.00) 100%)' }}
         aria-hidden="true"
       />
-      {/* Dark overlay on left to improve text readability */}
+      {/* Cover overlay — bottom dark gradient matching Figma spec */}
       <div
         className="absolute inset-0"
-        style={{
-          background: 'linear-gradient(to right, rgba(10,22,40,0.92) 40%, transparent 70%)',
-        }}
+        style={{ background: 'linear-gradient(0deg, #00101A 22.48%, rgba(0, 19, 32, 0.00) 51.74%)' }}
         aria-hidden="true"
       />
 
       {/* Content */}
       <div className="relative z-10 px-16 py-20 max-w-xl">
-        <h1
-          className="text-white font-black leading-none tracking-tight mb-6"
-          style={{ fontSize: 'clamp(4rem, 8vw, 7rem)' }}
-        >
-          ROOT
-          <br />
-          FURTHER
-        </h1>
+        {/* ROOT FURTHER logo — branded image asset from Figma */}
+        <div className="mb-6">
+          <Image
+            src="/root-further-logo.png"
+            alt="ROOT FURTHER"
+            width={451}
+            height={200}
+            priority
+            className="max-w-full h-auto"
+          />
+        </div>
 
-        <p className="text-white/90 text-lg mb-1">
-          Bắt đầu hành trình của bạn cùng SAA 2025.
+        <p className="text-white/90 mb-1 whitespace-nowrap" style={MONTSERRAT_STYLE}>
+          {t.subtitle}
         </p>
-        <p className="text-white/80 text-base mb-8">
-          Đăng nhập để khám phá!
+        <p className="text-white/80 mb-8" style={MONTSERRAT_STYLE}>
+          {t.cta}
         </p>
 
         <button
@@ -81,7 +113,7 @@ export function LoginHero() {
           ) : (
             <GoogleIcon />
           )}
-          LOGIN With Google
+          {t.loginBtn}
         </button>
       </div>
     </main>

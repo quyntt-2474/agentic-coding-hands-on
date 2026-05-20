@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist, Geist_Mono, Montserrat, Montserrat_Alternates } from "next/font/google";
+import localFont from "next/font/local";
+import { LanguageProvider } from "@/components/login/language-context";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -10,6 +12,23 @@ const geistSans = Geist({
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
+});
+
+const montserrat = Montserrat({
+  variable: "--font-montserrat",
+  subsets: ["latin", "vietnamese"],
+  weight: ["400", "700"],
+});
+
+const montserratAlternates = Montserrat_Alternates({
+  variable: "--font-montserrat-alternates",
+  subsets: ["latin", "vietnamese"],
+  weight: "700",
+});
+
+const digitalNumbers = localFont({
+  src: "../public/fonts/DigitalNumbers-Regular.woff",
+  variable: "--font-digital-numbers",
 });
 
 export const metadata: Metadata = {
@@ -25,9 +44,12 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable} ${montserrat.variable} ${montserratAlternates.variable} ${digitalNumbers.variable} h-full antialiased`}
+      suppressHydrationWarning
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col">
+        <LanguageProvider>{children}</LanguageProvider>
+      </body>
     </html>
   );
 }
