@@ -5,16 +5,17 @@ import { useLang } from '@/components/login/language-context';
 export const translations = {
   VN: {
     // Countdown
+    countdownTitle: 'Sự kiện sẽ bắt đầu sau',
     days: 'NGÀY',
     hours: 'GIỜ',
     minutes: 'PHÚT',
     // Hero
-    comingSoon: 'Comming soon',
+    comingSoon: 'Sắp ra mắt',
     timeLabel: 'Thời gian:',
     venueLabel: 'Địa điểm:',
     broadcastNote: 'Tường thuật trực tiếp tại Group Facebook Sun* Family',
-    aboutAwards: 'ABOUT AWARDS',
-    aboutKudos: 'ABOUT KUDOS',
+    aboutAwards: 'VỀ GIẢI THƯỞNG',
+    aboutKudos: 'VỀ KUDOS',
     // B4 section
     b4p1: 'Đứng trước bối cảnh thay đổi như vũ bão của thời đại AI và yêu cầu ngày càng cao từ khách hàng, Sun* lựa chọn chiến lược đa dạng hóa năng lực để không chỉ nỗ lực trở thành tinh anh trong lĩnh vực của mình, mà còn hướng đến một cái đích cao hơn, nơi mọi Sunner đều là "problem-solver" - chuyên gia trong việc giải quyết mọi vấn đề, tìm lời giải cho mọi bài toán của dự án, khách hàng và xã hội.',
     b4p2: 'Lấy cảm hứng từ sự đa dạng năng lực, khả năng phát triển linh hoạt cùng tinh thần đào sâu để bứt phá trong kỷ nguyên AI, "Root Further" đã được chọn để trở thành chủ đề chính thức của Lễ trao giải Sun* Annual Awards 2025.',
@@ -47,13 +48,15 @@ export const translations = {
     // Footer
     copyright: 'Bản quyền thuộc về Sun* © 2025',
     // Nav
-    aboutSAA: 'About SAA 2025',
-    awardsInfo: 'Awards Information',
+    aboutSAA: 'Về SAA 2025',
+    awardsInfo: 'Thông tin giải thưởng',
     sunKudos: 'Sun* Kudos',
     generalStandards: 'Tiêu chuẩn chung',
+    countdown: 'Countdown',
   },
   EN: {
     // Countdown
+    countdownTitle: 'Event starts in',
     days: 'DAYS',
     hours: 'HOURS',
     minutes: 'MINUTES',
@@ -100,6 +103,7 @@ export const translations = {
     awardsInfo: 'Awards Information',
     sunKudos: 'Sun* Kudos',
     generalStandards: 'General Standards',
+    countdown: 'Countdown',
   },
 } as const;
 

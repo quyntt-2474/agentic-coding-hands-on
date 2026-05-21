@@ -23,7 +23,7 @@ export function HeroSection() {
       {/* Single gradient overlay matching Figma — dark at bottom, transparent at top */}
       <div
         className="absolute inset-0 z-[1]"
-        style={{ background: 'linear-gradient(12deg, #00101A 23.7%, rgba(0, 18, 29, 0.46) 38.34%, rgba(0, 19, 32, 0) 48.92%)' }}
+        style={{ background: 'linear-gradient(12deg, #000000 42%, rgba(0, 18, 29, 0.46) 53%, rgba(0, 19, 32, 0) 65%)' }}
       />
 
       {/* ── First fold: two-column layout ── */}
@@ -87,14 +87,23 @@ export function HeroSection() {
       {/* ── B4: ROOT FURTHER description section ── */}
       <section className="relative z-10 py-24">
         <div className="relative z-10 flex flex-col items-center gap-10 px-6 max-w-4xl mx-auto">
-          {/* ROOT FURTHER logo centered */}
-          <div className="relative w-[280px] h-[120px]">
+          {/* ROOT FURTHER wordmark — two stacked images matching Figma layout */}
+          <div className="relative" style={{ width: 290, height: 134 }}>
             <Image
-              src="/root-further-logo.png"
-              alt="ROOT FURTHER"
-              fill
-              className="object-contain"
-              sizes="280px"
+              src="/root-further-b4-root.png"
+              alt="ROOT"
+              width={189}
+              height={67}
+              className="absolute"
+              style={{ left: 51, top: 0 }}
+            />
+            <Image
+              src="/root-further-b4-further.png"
+              alt="FURTHER"
+              width={290}
+              height={67}
+              className="absolute"
+              style={{ left: 0, top: 67 }}
             />
           </div>
 

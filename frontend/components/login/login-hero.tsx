@@ -13,7 +13,7 @@ const TRANSLATIONS = {
   EN: {
     subtitle: 'Begin your journey with SAA 2025.',
     cta: 'Log in to explore!',
-    loginBtn: 'LOGIN With Google',
+    loginBtn: 'Login With Google',
   },
 } as const;
 

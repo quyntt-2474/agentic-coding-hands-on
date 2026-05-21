@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono, Montserrat, Montserrat_Alternates } from "next/font/google";
 import localFont from "next/font/local";
 import { LanguageProvider } from "@/components/login/language-context";
+import { AuthGuard } from "@/components/auth/auth-guard";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -48,7 +49,9 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <body className="min-h-full flex flex-col">
-        <LanguageProvider>{children}</LanguageProvider>
+        <LanguageProvider>
+          <AuthGuard>{children}</AuthGuard>
+        </LanguageProvider>
       </body>
     </html>
   );
