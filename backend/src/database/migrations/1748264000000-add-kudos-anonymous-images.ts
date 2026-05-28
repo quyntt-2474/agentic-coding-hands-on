@@ -11,9 +11,7 @@ export class AddKudosAnonymousImages1748264000000 implements MigrationInterface 
     await queryRunner.query(
       `ALTER TABLE "kudos" ADD "senderAlias" character varying`,
     );
-    await queryRunner.query(
-      `ALTER TABLE "kudos" ADD "imageKeys" text`,
-    );
+    await queryRunner.query(`ALTER TABLE "kudos" ADD "imageKeys" text`);
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
