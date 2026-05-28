@@ -4,22 +4,24 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useEffect, useState } from 'react';
 import { LanguageSelector } from '@/components/login/language-selector';
-
-const navItems = [
-  { label: 'About SAA 2025', href: '/' },
-  { label: 'Awards Information', href: '/awards' },
-  { label: 'Sun* Kudos', href: '/kudos' },
-];
+import { useTranslations } from '@/lib/i18n';
 
 function HeaderInner({ currentPath }: { currentPath: string }) {
+  const t = useTranslations();
   const [isAuth, setIsAuth] = useState(false);
+
+  const navItems = [
+    { label: t.aboutSAA, href: '/' },
+    { label: t.awardsInfo, href: '/awards' },
+    { label: t.sunKudos, href: '/kudos' },
+  ];
 
   useEffect(() => {
     setIsAuth(!!localStorage.getItem('auth_token'));
   }, []);
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-40 flex items-stretch px-10 h-[72px] gap-8 bg-[rgba(16,20,23,0.8)] backdrop-blur-md border-b border-[#2e3940]">
+    <header className="fixed top-0 left-0 right-0 z-40 flex items-stretch px-16 h-[72px] gap-8 bg-[rgba(16,20,23,0.8)] backdrop-blur-md border-b border-[#2e3940]">
       {/* Logo */}
       <Link href="/" className="flex items-center shrink-0">
         <Image src="/saa-logo.png" alt="SAA 2025" width={40} height={40} style={{ width: 40, height: 40 }} />
