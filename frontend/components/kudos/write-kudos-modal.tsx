@@ -19,6 +19,7 @@ import { KudosToast } from './kudos-toast';
 interface WriteKudosModalProps {
   onClose: () => void;
   onSuccess?: () => void;
+  initialRecipient?: UserSearchResult | null;
 }
 
 interface FormErrors {
@@ -28,11 +29,11 @@ interface FormErrors {
   hashtags?: string;
 }
 
-export function WriteKudosModal({ onClose, onSuccess }: WriteKudosModalProps) {
+export function WriteKudosModal({ onClose, onSuccess, initialRecipient }: WriteKudosModalProps) {
   const t = useTranslations();
 
   // Form state
-  const [recipient, setRecipient] = useState<UserSearchResult | null>(null);
+  const [recipient, setRecipient] = useState<UserSearchResult | null>(initialRecipient ?? null);
   const [title, setTitle] = useState('');
   const [hashtags, setHashtags] = useState<Hashtag[]>([]);
   const [images, setImages] = useState<UploadedImage[]>([]);

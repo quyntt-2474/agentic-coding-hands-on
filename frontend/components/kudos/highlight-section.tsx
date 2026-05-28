@@ -3,7 +3,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { KudosCard } from "@/lib/types/kudos";
 import { apiFetch } from "@/lib/api";
-import { useInterval } from "@/lib/use-interval";
 import { useTranslations } from "@/lib/i18n";
 import { FilterDropdown } from "./filter-dropdown";
 import { HighlightCarousel } from "./highlight-carousel";
@@ -21,6 +20,19 @@ export function HighlightSection() {
   const [activeHashtag, setActiveHashtag] = useState<string | null>(null);
   const [activeDept, setActiveDept] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  // Derive current user email from JWT in localStorage. Lazy initializer runs once
+  // at mount and avoids the set-state-in-effect lint rule.
+  const [currentUserEmail] = useState<string | undefined>(() => {
+    if (typeof window === "undefined") return undefined;
+    const token = localStorage.getItem("auth_token");
+    if (!token) return undefined;
+    try {
+      const payload = JSON.parse(atob(token.split(".")[1]));
+      return payload.email as string;
+    } catch {
+      return undefined;
+    }
+  });
 
   const fetchHighlight = useCallback(async () => {
     try {
@@ -53,8 +65,32 @@ export function HighlightSection() {
     fetchHighlight();
   }, [fetchHighlight]);
 
-  // Poll every 15s
-  useInterval(fetchHighlight, 15_000);
+  // Refetch when a new kudos is created elsewhere on the page
+  useEffect(() => {
+    const handler = () => fetchHighlight();
+    window.addEventListener("kudos:created", handler);
+    return () => window.removeEventListener("kudos:created", handler);
+  }, [fetchHighlight]);
+
+  // Apply like/unlike updates in-place — no refetch needed.
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const ev = e as CustomEvent<{
+        id: string;
+        likedByMe: boolean;
+        likeCount: number;
+      }>;
+      setKudos((prev) =>
+        prev.map((k) =>
+          k.id === ev.detail.id
+            ? { ...k, likedByMe: ev.detail.likedByMe, likeCount: ev.detail.likeCount }
+            : k,
+        ),
+      );
+    };
+    window.addEventListener("kudos:liked", handler);
+    return () => window.removeEventListener("kudos:liked", handler);
+  }, []);
 
   return (
     <section className="w-full max-w-6xl mx-auto px-6 md:px-10 py-10">
@@ -85,6 +121,7 @@ export function HighlightSection() {
             options={hashtags}
             value={activeHashtag}
             onChange={setActiveHashtag}
+            prefix="#"
           />
           <FilterDropdown
             label={t.filterDepartment}
@@ -100,10 +137,8 @@ export function HighlightSection() {
         <div className="flex justify-center py-12">
           <div className="w-8 h-8 rounded-full border-2 border-[#FFEA9E]/30 border-t-[#FFEA9E] animate-spin" />
         </div>
-      ) : kudos.length === 0 ? (
-        <p className="text-center text-white/40 py-12">{t.kudosEmptyFeed}</p>
       ) : (
-        <HighlightCarousel items={kudos} />
+        <HighlightCarousel items={kudos} currentUserEmail={currentUserEmail} />
       )}
     </section>
   );

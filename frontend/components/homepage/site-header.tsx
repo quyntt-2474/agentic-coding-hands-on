@@ -2,23 +2,31 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { useEffect, useState } from 'react';
+import { useSyncExternalStore } from 'react';
 import { LanguageSelector } from '@/components/login/language-selector';
 import { useTranslations } from '@/lib/i18n';
+import { UserProfileDropdown } from '@/components/homepage/user-profile-dropdown';
+import { NotificationPanel } from '@/components/homepage/notification-panel';
+import {
+  getAuthUserServerSnapshot,
+  getAuthUserSnapshot,
+  subscribeAuthUser,
+} from '@/lib/jwt';
 
 function HeaderInner({ currentPath }: { currentPath: string }) {
   const t = useTranslations();
-  const [isAuth, setIsAuth] = useState(false);
+  const authUser = useSyncExternalStore(
+    subscribeAuthUser,
+    getAuthUserSnapshot,
+    getAuthUserServerSnapshot,
+  );
+  const isAuth = authUser !== null;
 
   const navItems = [
     { label: t.aboutSAA, href: '/' },
     { label: t.awardsInfo, href: '/awards' },
     { label: t.sunKudos, href: '/kudos' },
   ];
-
-  useEffect(() => {
-    setIsAuth(!!localStorage.getItem('auth_token'));
-  }, []);
 
   return (
     <header className="fixed top-0 left-0 right-0 z-40 flex items-stretch px-16 h-[72px] gap-8 bg-[rgba(16,20,23,0.8)] backdrop-blur-md border-b border-[#2e3940]">
@@ -50,21 +58,9 @@ function HeaderInner({ currentPath }: { currentPath: string }) {
 
       {/* Right actions: notification → language → user (Figma order) */}
       <div className="ml-auto flex items-center gap-2 shrink-0">
-        {isAuth && (
-          <button type="button" aria-label="Notifications" className="p-2 text-white/80 hover:text-white">
-            <Image src="/icons/icon-notification.svg" alt="" width={24} height={24} />
-          </button>
-        )}
+        {isAuth && <NotificationPanel />}
         <LanguageSelector />
-        {isAuth && (
-          <button
-            type="button"
-            aria-label="User profile"
-            className="border border-[#998C5F] rounded p-2 text-white/80 hover:text-white"
-          >
-            <Image src="/icons/icon-user.svg" alt="" width={20} height={20} className="rounded-full" />
-          </button>
-        )}
+        {isAuth && <UserProfileDropdown user={authUser} />}
       </div>
     </header>
   );

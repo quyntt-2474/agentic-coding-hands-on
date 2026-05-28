@@ -3,7 +3,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { KudosCard, KudosListResponse } from '@/lib/types/kudos';
 import { apiFetch } from '@/lib/api';
-import { useInterval } from '@/lib/use-interval';
 import { useTranslations } from '@/lib/i18n';
 import { KudosPostCard } from './kudos-post-card';
 
@@ -48,8 +47,32 @@ export function KudosFeed({ activeHashtag, activeDept, currentUserEmail }: Kudos
     fetchFirstPage();
   }, [fetchFirstPage]);
 
-  // Poll for new kudos every 15s (refreshes page 1 only)
-  useInterval(fetchFirstPage, 15_000);
+  // Refetch first page when a new kudos is created elsewhere on the page
+  useEffect(() => {
+    const handler = () => fetchFirstPage();
+    window.addEventListener('kudos:created', handler);
+    return () => window.removeEventListener('kudos:created', handler);
+  }, [fetchFirstPage]);
+
+  // Apply like/unlike updates in-place — no refetch needed.
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const ev = e as CustomEvent<{
+        id: string;
+        likedByMe: boolean;
+        likeCount: number;
+      }>;
+      setKudos((prev) =>
+        prev.map((k) =>
+          k.id === ev.detail.id
+            ? { ...k, likedByMe: ev.detail.likedByMe, likeCount: ev.detail.likeCount }
+            : k,
+        ),
+      );
+    };
+    window.addEventListener('kudos:liked', handler);
+    return () => window.removeEventListener('kudos:liked', handler);
+  }, []);
 
   const handleLoadMore = async () => {
     const nextPage = page + 1;

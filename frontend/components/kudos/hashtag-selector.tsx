@@ -14,6 +14,29 @@ interface HashtagSelectorProps {
   hasError?: boolean;
 }
 
+/** 24×24 circle-check icon for selected dropdown rows (matches Figma spec A.2). */
+function CheckmarkIcon() {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      width={24}
+      height={24}
+      className="shrink-0"
+      aria-hidden="true"
+    >
+      <circle cx="12" cy="12" r="11" fill="#FFFFFF" />
+      <path
+        d="M7 12.5l3 3 7-7"
+        stroke="#00101A"
+        strokeWidth={2}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        fill="none"
+      />
+    </svg>
+  );
+}
+
 export function HashtagSelector({
   selected,
   onChange,
@@ -61,9 +84,17 @@ export function HashtagSelector({
 
   const canAdd = selected.length < MAX_HASHTAGS;
 
+  // Trigger button border colour: error > disabled > normal
+  const triggerBorderClass =
+    hasError && selected.length === 0
+      ? 'border-red-500 text-red-500'
+      : !canAdd
+        ? 'border-[#998C5F]/40 text-[#00101A]/40 cursor-not-allowed'
+        : 'border-[#998C5F] text-[#00101A] hover:border-[#00101A]';
+
   return (
-    <div ref={containerRef} className="flex flex-wrap items-center gap-2">
-      {/* Selected chips */}
+    <div ref={containerRef} className="flex flex-wrap items-start gap-2">
+      {/* Selected chips — kept for at-a-glance read of current selection */}
       {selected.map((tag) => (
         <span
           key={tag.id}
@@ -84,36 +115,31 @@ export function HashtagSelector({
         </span>
       ))}
 
-      {/* Add button + max note */}
-      <div className="relative flex items-center gap-2">
-        {canAdd && (
-          <button
-            type="button"
-            onClick={() => setOpen((o) => !o)}
-            className={`inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs
-                        border transition-colors
-                        ${hasError && selected.length === 0
-                          ? 'border-red-500 text-red-500 hover:border-red-400'
-                          : 'border-[#998C5F] text-[#00101A]/70 hover:border-[#00101A] hover:text-[#00101A]'
-                        }`}
-          >
-            {addLabel}
-          </button>
-        )}
-        <span className="text-xs text-[#00101A]/50">{maxLabel}</span>
+      {/* Add trigger + dropdown — matches Figma frame p9zO-c4a4x */}
+      <div className="relative">
+        <button
+          type="button"
+          onClick={() => canAdd && setOpen((o) => !o)}
+          disabled={!canAdd}
+          className={`flex flex-col items-start gap-0.5 px-4 py-2 rounded-lg border
+                      bg-transparent transition-colors ${triggerBorderClass}`}
+        >
+          <span className="text-sm font-bold leading-tight">{addLabel}</span>
+          <span className="text-[11px] leading-tight opacity-70">{maxLabel}</span>
+        </button>
 
-        {/* Dropdown */}
+        {/* Dropdown — dark surface per design */}
         {open && (
           <div
-            className="absolute z-10 top-full left-0 mt-1 w-56 rounded-lg border border-[#998C5F]/40
-                       bg-white shadow-xl max-h-52 overflow-y-auto"
+            className="absolute z-10 top-full left-0 mt-1 w-72 rounded-lg border border-[#998C5F]/40
+                       bg-[#1A1410] shadow-xl max-h-72 overflow-y-auto"
           >
             {loadError && (
-              <p className="text-xs text-red-500 text-center py-4">Không tải được hashtag</p>
+              <p className="text-xs text-red-400 text-center py-4">Không tải được hashtag</p>
             )}
             {!loadError && allTags.length === 0 && (
               <div className="flex justify-center py-4">
-                <div className="w-4 h-4 rounded-full border-2 border-[#998C5F]/30 border-t-[#998C5F] animate-spin" />
+                <div className="w-4 h-4 rounded-full border-2 border-[#FFEA9E]/30 border-t-[#FFEA9E] animate-spin" />
               </div>
             )}
             {allTags.map((tag) => {
@@ -125,16 +151,16 @@ export function HashtagSelector({
                   type="button"
                   disabled={disabled}
                   onClick={() => toggle(tag)}
-                  className={`w-full flex items-center justify-between px-4 py-2 text-sm
-                              transition-colors text-left
+                  className={`w-full flex items-center justify-between gap-3 px-4 py-3 text-sm
+                              text-white transition-colors text-left
                               ${disabled
                                 ? 'opacity-40 cursor-not-allowed'
-                                : 'hover:bg-black/5 cursor-pointer'
+                                : 'hover:bg-white/5 cursor-pointer'
                               }
-                              ${active ? 'text-[#00101A] font-semibold bg-[#FFEA9E]/40' : 'text-[#00101A]/80'}`}
+                              ${active ? 'bg-white/5 font-bold' : ''}`}
                 >
-                  <span>#{tag.name}</span>
-                  {active && <span className="text-xs">✓</span>}
+                  <span className="truncate">#{tag.name}</span>
+                  {active && <CheckmarkIcon />}
                 </button>
               );
             })}
