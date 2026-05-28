@@ -8,18 +8,19 @@ export function KudosSection() {
   const t = useTranslations();
 
   return (
-    <section className="relative py-20 overflow-hidden">
-      {/* Background */}
-      <Image
-        src="/kudos-bg.png"
-        alt=""
-        fill
-        priority
-        className="object-cover object-center"
-        sizes="100vw"
-      />
+    <section className="py-20 bg-[#00101a]">
+      <div className="relative w-[1440px] mx-auto overflow-hidden">
+        {/* Background — contained to content width, not full viewport */}
+        <Image
+          src="/kudos-bg.png"
+          alt=""
+          fill
+          priority
+          className="object-cover object-center"
+          sizes="1440px"
+        />
 
-      <div className="relative z-10 max-w-7xl mx-auto px-6 md:px-20 grid grid-cols-1 md:grid-cols-2 items-center gap-12">
+      <div className="relative z-10 px-6 md:px-20 xl:px-36 py-20 grid grid-cols-1 md:grid-cols-2 items-center gap-12">
         {/* Left — text content */}
         <div className="flex flex-col gap-4">
           <p className="text-[13px] font-bold font-[family-name:var(--font-montserrat)] text-white/50 uppercase tracking-widest">
@@ -54,6 +55,7 @@ export function KudosSection() {
             className="object-contain"
           />
         </div>
+      </div>
       </div>
     </section>
   );

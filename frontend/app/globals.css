@@ -22,3 +22,31 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* Tiptap editor */
+.tiptap {
+  outline: none;
+  min-height: 160px;
+  padding: 0.75rem 1rem;
+  font-size: 0.875rem;
+  line-height: 1.6;
+  color: rgba(0, 16, 26, 0.88);
+}
+.tiptap p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  color: rgba(0, 16, 26, 0.35);
+  pointer-events: none;
+  float: left;
+  height: 0;
+}
+.tiptap strong { font-weight: 700; }
+.tiptap em { font-style: italic; }
+.tiptap s { text-decoration: line-through; }
+.tiptap ol { list-style: decimal; padding-left: 1.25rem; }
+.tiptap blockquote {
+  border-left: 3px solid #998C5F;
+  margin-left: 0;
+  padding-left: 0.75rem;
+  color: rgba(0, 16, 26, 0.6);
+}
+.tiptap a { color: #1D4ED8; text-decoration: underline; }

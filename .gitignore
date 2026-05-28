@@ -1,6 +1,19 @@
 # AI agents files
 .claude/*
 !.claude/settings.json
+!.claude/commands/
+.claude/commands/*
+
+!.claude/skills/
+.claude/skills/*
+!.claude/skills/figma-inspect/
+!.claude/skills/figma-inspect/**
+
+backend/.claude/*
+frontend/.claude/*
+
+docs/*
+
 .mind.*
 mind.*
 plans/**/*
