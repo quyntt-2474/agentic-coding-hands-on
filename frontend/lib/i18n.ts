@@ -90,6 +90,7 @@ export const translations = {
     kudosLiveTitle: 'Hệ thống ghi nhận và cảm ơn',
     kudosInputPlaceholder: 'Hôm nay, bạn muốn gửi lời cảm ơn và ghi nhận đến ai?',
     kudosSearchPlaceholder: 'Tìm kiếm profile Sunner',
+    kudosSearchEmpty: 'Không tìm thấy Sunner phù hợp',
     kudosComingSoon: 'Chức năng đang phát triển',
     highlightTitle: 'HIGHLIGHT KUDOS',
     allKudosTitle: 'ALL KUDOS',
@@ -99,6 +100,7 @@ export const translations = {
     kudosEmptyFeed: 'Hiện tại chưa có Kudos nào.',
     kudosEmptyLeaderboard: 'Chưa có dữ liệu',
     loadMore: 'Xem thêm',
+    copyLink: 'Sao chép link',
     copyLinkToast: 'Đã sao chép link — sẵn sàng chia sẻ!',
     recentRecipients: '10 SUNNER NHẬN QUÀ MỚI NHẤT',
     openGiftButton: 'Mở Secret Box',
@@ -137,6 +139,8 @@ export const translations = {
     writeKudosTitleHint1: 'Ví dụ: Người truyền động lực cho tôi.',
     writeKudosTitleHint2: 'Danh hiệu sẽ hiển thị làm tiêu đề Kudos của bạn.',
     writeKudosCommunityStandards: 'Tiêu chuẩn cộng đồng',
+    notificationTitle: 'Thông báo',
+    notificationEmpty: 'Không có thông báo',
   },
   EN: {
     // Countdown
@@ -225,6 +229,7 @@ export const translations = {
     kudosLiveTitle: 'Recognition and Thanks System',
     kudosInputPlaceholder: 'Who do you want to thank today?',
     kudosSearchPlaceholder: 'Search Sunner profile',
+    kudosSearchEmpty: 'No matching Sunner found',
     kudosComingSoon: 'Feature coming soon',
     highlightTitle: 'HIGHLIGHT KUDOS',
     allKudosTitle: 'ALL KUDOS',
@@ -234,6 +239,7 @@ export const translations = {
     kudosEmptyFeed: 'No kudos yet.',
     kudosEmptyLeaderboard: 'No data yet',
     loadMore: 'Load more',
+    copyLink: 'Copy Link',
     copyLinkToast: 'Link copied — ready to share!',
     recentRecipients: 'TOP 10 RECENT RECIPIENTS',
     openGiftButton: 'Open Gift',
@@ -272,6 +278,8 @@ export const translations = {
     writeKudosTitleHint1: 'E.g.: The one who motivates me.',
     writeKudosTitleHint2: 'The title will be shown as your Kudos heading.',
     writeKudosCommunityStandards: 'Community Standards',
+    notificationTitle: 'Notification',
+    notificationEmpty: 'No notifications',
   },
 } as const;
 

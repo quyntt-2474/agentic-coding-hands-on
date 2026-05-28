@@ -36,20 +36,22 @@ export class KudosController {
     private readonly s3: S3Service,
   ) {}
 
-  /** GET /kudos — public paginated list */
+  /** GET /kudos — paginated list (auth required) */
+  @UseGuards(JwtAuthGuard)
   @Get()
-  findAll(@Query() query: KudosQueryDto, @Request() req: Partial<AuthRequest>) {
-    return this.kudosService.findAll(query, req.user?.email);
+  findAll(@Query() query: KudosQueryDto, @Request() req: AuthRequest) {
+    return this.kudosService.findAll(query, req.user.email);
   }
 
-  /** GET /kudos/highlight — top 5 by likes (public) */
+  /** GET /kudos/highlight — top 5 by likes (auth required) */
+  @UseGuards(JwtAuthGuard)
   @Get('highlight')
   findHighlight(
+    @Request() req: AuthRequest,
     @Query('hashtag') hashtag?: string,
     @Query('department') department?: string,
-    @Request() req?: Partial<AuthRequest>,
   ) {
-    return this.kudosService.findHighlight(hashtag, department, req?.user?.email);
+    return this.kudosService.findHighlight(hashtag, department, req.user.email);
   }
 
   /** GET /kudos/spotlight — word cloud data (public) */
@@ -65,10 +67,11 @@ export class KudosController {
     return this.kudosService.getStats(req.user.email);
   }
 
-  /** GET /kudos/:id — single kudos detail (public) */
+  /** GET /kudos/:id — single kudos detail (auth required) */
+  @UseGuards(JwtAuthGuard)
   @Get(':id')
-  findOne(@Param('id') id: string, @Request() req: Partial<AuthRequest>) {
-    return this.kudosService.findOne(id, req.user?.email);
+  findOne(@Param('id') id: string, @Request() req: AuthRequest) {
+    return this.kudosService.findOne(id, req.user.email);
   }
 
   /** POST /kudos — create kudos (auth required) */
@@ -90,7 +93,12 @@ export class KudosController {
       limits: { fileSize: MAX_IMAGE_SIZE },
       fileFilter: (_, file, cb) => {
         if (!ALLOWED_MIME.test(file.mimetype)) {
-          return cb(new BadRequestException('Only image files are allowed (jpg, png, gif, webp)'), false);
+          return cb(
+            new BadRequestException(
+              'Only image files are allowed (jpg, png, gif, webp)',
+            ),
+            false,
+          );
         }
         cb(null, true);
       },

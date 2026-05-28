@@ -3,7 +3,7 @@
 import Image from 'next/image';
 import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { TheLeModal } from './the-le-modal';
+import { RuleModal } from './rule-modal';
 
 export function WidgetButton() {
   const [isOpen, setIsOpen] = useState(false);
@@ -35,7 +35,7 @@ export function WidgetButton() {
 
   return (
     <>
-    <TheLeModal
+    <RuleModal
       isOpen={showTheLe}
       onClose={() => setShowTheLe(false)}
       onVietKudos={() => { setShowTheLe(false); router.push('/kudos'); }}

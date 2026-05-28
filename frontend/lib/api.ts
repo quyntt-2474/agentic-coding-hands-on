@@ -12,5 +12,9 @@ export async function apiFetch<T>(path: string, options?: RequestInit): Promise<
     },
   });
   if (!res.ok) throw new Error(`API error ${res.status}`);
-  return res.json() as Promise<T>;
+  // Handle empty bodies (e.g. NestJS handlers returning `Promise<void>` → 201/204
+  // with no payload). Calling res.json() on those throws "Unexpected end of JSON
+  // input" and surfaces as a fake failure to callers.
+  const text = await res.text();
+  return (text ? JSON.parse(text) : undefined) as T;
 }

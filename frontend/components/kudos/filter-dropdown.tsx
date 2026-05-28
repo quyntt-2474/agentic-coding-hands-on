@@ -7,6 +7,8 @@ interface FilterDropdownProps {
   options: string[];
   value: string | null;
   onChange: (v: string | null) => void;
+  /** Prefix applied to displayed option labels (e.g. "#" for hashtags). Value passed to onChange stays unprefixed. */
+  prefix?: string;
 }
 
 /** Chevron icon — rotates when dropdown is open */
@@ -27,9 +29,10 @@ function ChevronIcon({ open }: { open: boolean }) {
   );
 }
 
-export function FilterDropdown({ label, options, value, onChange }: FilterDropdownProps) {
+export function FilterDropdown({ label, options, value, onChange, prefix = '' }: FilterDropdownProps) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
+  const displayValue = value !== null ? `${prefix}${value}` : null;
 
   // Close on outside click
   useEffect(() => {
@@ -55,32 +58,44 @@ export function FilterDropdown({ label, options, value, onChange }: FilterDropdo
             : 'bg-[rgba(255,234,158,0.10)] text-white border-[#998C5F] hover:border-[#FFEA9E]/80'
         }`}
       >
-        {value ?? label}
+        {displayValue ?? label}
         <ChevronIcon open={open} />
       </button>
 
       {open && options.length > 0 && (
-        <div className="absolute top-full mt-1 left-0 z-50 min-w-[160px] rounded-lg border border-white/10 bg-[#0d1f33] shadow-lg overflow-hidden">
+        <div
+          role="listbox"
+          className="absolute top-full mt-2 left-0 z-50 min-w-[180px] max-h-[360px] overflow-y-auto p-2 rounded-2xl border border-white/10 bg-[#0c1419] shadow-[0_8px_24px_rgba(0,0,0,0.45)] flex flex-col gap-1"
+          style={{ fontFamily: 'var(--font-montserrat)' }}
+        >
           {/* Clear option */}
           {isActive && (
             <button
               onClick={() => { onChange(null); setOpen(false); }}
-              className="w-full text-left px-3 py-2 text-xs text-white/40 hover:bg-white/5"
+              className="w-full text-center px-3 py-2 text-xs font-bold text-white/40 rounded-lg hover:bg-white/5 transition-colors"
             >
               ✕ Clear filter
             </button>
           )}
-          {options.map((opt) => (
-            <button
-              key={opt}
-              onClick={() => { onChange(opt === value ? null : opt); setOpen(false); }}
-              className={`w-full text-left px-3 py-2 text-sm transition-colors hover:bg-white/5 ${
-                opt === value ? 'text-[#FFEA9E]' : 'text-white'
-              }`}
-            >
-              {opt}
-            </button>
-          ))}
+          {options.map((opt) => {
+            const selected = opt === value;
+            return (
+              <button
+                key={opt}
+                role="option"
+                aria-selected={selected}
+                onClick={() => { onChange(selected ? null : opt); setOpen(false); }}
+                className={[
+                  'w-full text-center px-4 py-3 rounded-lg text-sm font-bold transition-colors',
+                  selected
+                    ? 'bg-white/[0.08] text-[#FFEA9E] [text-shadow:0_0_8px_rgba(255,234,158,0.65)]'
+                    : 'text-white hover:bg-white/[0.06]',
+                ].join(' ')}
+              >
+                {`${prefix}${opt}`}
+              </button>
+            );
+          })}
         </div>
       )}
     </div>

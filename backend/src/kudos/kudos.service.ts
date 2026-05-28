@@ -1,7 +1,6 @@
 import {
   BadRequestException,
   ConflictException,
-  ForbiddenException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -319,9 +318,6 @@ export class KudosService {
   async like(kudosId: string, userEmail: string): Promise<void> {
     const kudos = await this.kudosRepo.findOne({ where: { id: kudosId } });
     if (!kudos) throw new NotFoundException(`Kudos ${kudosId} not found`);
-    if (kudos.senderEmail === userEmail) {
-      throw new ForbiddenException('Cannot like your own kudos');
-    }
 
     const existing = await this.likeRepo.findOne({ where: { kudosId, userEmail } });
     if (existing) throw new ConflictException('Already liked');

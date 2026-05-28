@@ -10,7 +10,6 @@ interface KudosActionBarProps {
   kudosId: string;
   likeCount: number;
   likedByMe: boolean;
-  senderEmail: string;
   currentUserEmail?: string;
   onLikeChange?: (id: string, liked: boolean, count: number) => void;
 }
@@ -19,7 +18,6 @@ export function KudosActionBar({
   kudosId,
   likeCount,
   likedByMe,
-  senderEmail,
   currentUserEmail,
   onLikeChange,
 }: KudosActionBarProps) {
@@ -30,7 +28,6 @@ export function KudosActionBar({
   const [toastMsg, setToastMsg] = useState('');
   const [showToast, setShowToast] = useState(false);
 
-  const isOwn = !!currentUserEmail && currentUserEmail === senderEmail;
   const isAuthed = !!currentUserEmail;
 
   const showMessage = (msg: string) => {
@@ -41,7 +38,6 @@ export function KudosActionBar({
 
   const handleLike = async () => {
     if (!isAuthed) { showMessage(t.loginRequired); return; }
-    if (isOwn) return;
 
     const newLiked = !optimisticLiked;
     const newCount = newLiked ? optimisticCount + 1 : optimisticCount - 1;
@@ -80,13 +76,8 @@ export function KudosActionBar({
       {/* Like button */}
       <button
         onClick={handleLike}
-        disabled={isOwn}
         className={`flex items-center gap-1.5 text-sm transition-colors ${
-          isOwn
-            ? 'opacity-30 cursor-not-allowed'
-            : optimisticLiked
-            ? 'text-red-400'
-            : 'text-white/50 hover:text-red-400'
+          optimisticLiked ? 'text-red-400' : 'text-white/50 hover:text-red-400'
         }`}
         aria-label="Like"
       >

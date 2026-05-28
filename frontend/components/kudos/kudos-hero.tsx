@@ -12,7 +12,7 @@ function KudosHeroInner() {
   const t = useTranslations();
   return (
     <section
-      className="relative w-full overflow-hidden flex flex-col"
+      className="relative w-full flex flex-col"
       style={{ background: "var(--background)", minHeight: 512 }}
     >
       {/* Key-visual background — full-width centered, no opacity (Figma: 1440×512px) */}
@@ -49,8 +49,11 @@ function KudosHeroInner() {
           />
         </div>
       </div>
-      {/* Input trigger — mt-auto pushes to bottom of hero, z-10 above overlays */}
-      <div className="relative z-10 mt-auto">
+      {/* Input trigger — mt-auto pushes to bottom of hero.
+          No z-index here: a stacking context would trap the WriteKudosModal
+          (fixed z-50) below the SiteHeader (fixed z-40). Document-order alone
+          keeps the trigger above the absolute bg overlays. */}
+      <div className="relative mt-auto">
         <KudosInputTrigger />
       </div>
     </section>

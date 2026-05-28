@@ -35,14 +35,14 @@ const HERO_LEVELS = [
   },
 ];
 
-interface TheLeModalProps {
+interface RuleModalProps {
   isOpen: boolean;
   onClose: () => void;
   onVietKudos: () => void;
 }
 
 /** Thể lệ Kudos — slide-up panel on mobile, right-drawer on desktop */
-export function TheLeModal({ isOpen, onClose, onVietKudos }: TheLeModalProps) {
+export function RuleModal({ isOpen, onClose, onVietKudos }: RuleModalProps) {
   const [mounted, setMounted] = useState(false);
   const [visible, setVisible] = useState(false);
 

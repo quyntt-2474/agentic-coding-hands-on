@@ -1,6 +1,68 @@
 import Image from 'next/image';
 import Link from 'next/link';
 
+/** Rank label derived from stars per momorph spec B.3.2 (10/20/50 kudos thresholds). */
+export function rankLabel(stars: number): string | null {
+  if (stars >= 3) return 'Legend Hero';
+  if (stars >= 2) return 'Rising Hero';
+  if (stars >= 1) return 'Warm Spreader';
+  return null;
+}
+
+interface UserVerticalBlockProps {
+  email: string;
+  name: string;
+  picture: string;
+  department: string;
+  stars: number;
+  avatarSize?: number;
+}
+
+/** Vertical user block (avatar / name / dept-rank pill) used on cream kudos cards. */
+export function UserVerticalBlock({
+  email,
+  name,
+  picture,
+  department,
+  stars,
+  avatarSize = 56,
+}: UserVerticalBlockProps) {
+  const rank = rankLabel(stars);
+  return (
+    <div className="flex flex-col items-center gap-2 min-w-0 flex-1">
+      <Link href={`/profile/${email}`} className="shrink-0">
+        {picture ? (
+          <Image
+            src={picture}
+            alt={name}
+            width={avatarSize}
+            height={avatarSize}
+            className="rounded-full object-cover border-2 border-white shadow-sm"
+            style={{ width: avatarSize, height: avatarSize }}
+          />
+        ) : (
+          <div
+            className="rounded-full bg-[#FFEA9E] flex items-center justify-center text-[#00101A] font-bold border-2 border-white shadow-sm"
+            style={{ width: avatarSize, height: avatarSize, fontSize: avatarSize * 0.36 }}
+          >
+            {name.charAt(0).toUpperCase()}
+          </div>
+        )}
+      </Link>
+      <Link
+        href={`/profile/${email}`}
+        className="text-sm font-bold text-[#00101A] hover:text-[#B8860B] transition-colors truncate max-w-full text-center"
+      >
+        {name}
+      </Link>
+      <span className="text-[10px] font-semibold text-[#00101A] bg-[#FFEA9E] rounded-full px-2 py-0.5 truncate max-w-full">
+        {department}
+        {rank && ` • ${rank}`}
+      </span>
+    </div>
+  );
+}
+
 interface UserInfoBlockProps {
   email: string;
   name: string;
