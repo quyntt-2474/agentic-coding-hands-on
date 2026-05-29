@@ -30,9 +30,9 @@ export function HeroSection() {
       <section className="relative z-10 pt-[72px]">
 
         {/* Content — left-aligned */}
-        <div className="relative z-10 flex flex-col gap-6 px-10 md:px-20 py-16">
+        <div className="relative z-10 flex flex-col justify-center gap-10 px-10 md:px-20 py-16 min-h-[calc(100vh-72px)]">
           {/* ROOT FURTHER heading image */}
-          <div className="relative w-full max-w-[400px] h-[200px]">
+          <div className="relative w-full max-w-[560px] h-[280px]">
             <Image
               src="/root-further-hero.png"
               alt="ROOT FURTHER"
@@ -44,41 +44,41 @@ export function HeroSection() {
           </div>
 
           {/* Coming soon + countdown */}
-          <div className="flex flex-col gap-3">
-            <p className="text-[14px] font-bold font-[family-name:var(--font-montserrat)] text-white uppercase tracking-widest">
+          <div className="flex flex-col gap-4">
+            <p className="text-[18px] font-bold font-[family-name:var(--font-montserrat)] text-white uppercase tracking-widest">
               {t.comingSoon}
             </p>
             <CountdownTimer />
           </div>
 
           {/* Event info */}
-          <div className="flex flex-col gap-1">
-            <p className="text-[14px] font-[family-name:var(--font-montserrat)] text-white font-bold">
+          <div className="flex flex-col gap-2">
+            <p className="text-[18px] font-[family-name:var(--font-montserrat)] text-white font-bold">
               <span className="text-white font-bold">{t.timeLabel} </span>
               <span className="font-bold text-saa-gold">26/12/2025</span>
               <span className="text-white ml-6 font-bold">{t.venueLabel} </span>
               <span className="font-bold text-saa-gold">Âu cơ Art Center</span>
             </p>
-            <p className="text-[13px] font-[family-name:var(--font-montserrat)] text-white font-bold">
+            <p className="text-[16px] font-[family-name:var(--font-montserrat)] text-white font-bold">
               {t.broadcastNote}
             </p>
           </div>
 
           {/* CTA Buttons */}
-          <div className="flex flex-wrap items-center gap-4">
+          <div className="flex flex-wrap items-center gap-5">
             <Link
               href="/awards"
-              className="inline-flex items-center gap-2 px-6 py-4 rounded-lg bg-saa-gold text-[#0a1628] text-[14px] font-bold font-[family-name:var(--font-montserrat)] hover:brightness-110 transition-all"
+              className="inline-flex items-center gap-2 px-8 py-5 rounded-lg bg-saa-gold text-[#0a1628] text-[16px] font-bold font-[family-name:var(--font-montserrat)] hover:brightness-110 transition-all"
             >
               {t.aboutAwards}
-              <Image src="/icons/icon-arrow-up-right.svg" alt="" width={16} height={16} style={{ width: 16, height: 16 }} className="invert" />
+              <Image src="/icons/icon-arrow-up-right.svg" alt="" width={20} height={20} style={{ width: 20, height: 20 }} className="invert" />
             </Link>
             <Link
               href="/kudos"
-              className="inline-flex items-center gap-2 px-6 py-4 rounded-lg border border-[#998C5F] bg-[rgba(255,234,158,0.10)] text-white text-[14px] font-bold font-[family-name:var(--font-montserrat)] hover:bg-[rgba(255,234,158,0.20)] transition-all"
+              className="inline-flex items-center gap-2 px-8 py-5 rounded-lg border border-[#998C5F] bg-[rgba(255,234,158,0.10)] text-white text-[16px] font-bold font-[family-name:var(--font-montserrat)] hover:bg-[rgba(255,234,158,0.20)] transition-all"
             >
               {t.aboutKudos}
-              <Image src="/icons/icon-arrow-up-right.svg" alt="" width={16} height={16} style={{ width: 16, height: 16 }} />
+              <Image src="/icons/icon-arrow-up-right.svg" alt="" width={20} height={20} style={{ width: 20, height: 20 }} />
             </Link>
           </div>
         </div>

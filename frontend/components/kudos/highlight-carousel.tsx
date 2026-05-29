@@ -107,7 +107,17 @@ export function HighlightCarousel({ items, currentUserEmail }: HighlightCarousel
       : safeIndex - firstReal
     : safeIndex;
 
-  const prev = () => setActiveIndex((i) => Math.max(firstReal, i - 1));
+  // Backward wrap: at first real item, jump to the last real item with
+  // animation disabled (one-frame snap). Smoother two-phase wrap via slot 0
+  // would need a second leading clone — KISS, instant snap is enough.
+  const prev = () => {
+    if (wrapEnabled && activeIndex <= firstReal) {
+      setAnimate(false);
+      setActiveIndex(items.length); // slot of items[last]
+      return;
+    }
+    setActiveIndex((i) => i - 1);
+  };
   const next = () => setActiveIndex((i) => i + 1); // forward always allowed; wraps via the clone slot
 
   // Translate per breakpoint (1-up mobile / 2-up tablet / 2.5-up desktop w-2/5).
@@ -155,7 +165,7 @@ export function HighlightCarousel({ items, currentUserEmail }: HighlightCarousel
       {/* Side arrows — chevrons floating at viewport edges (spec B.2.1 / B.2.2) */}
       <button
         onClick={prev}
-        disabled={displayedIndex === 0}
+        disabled={!wrapEnabled}
         aria-label="Previous"
         className="absolute left-[-28px] top-1/2 -translate-y-1/2 z-10
                    text-4xl leading-none text-white/60 hover:text-[#FFEA9E]
@@ -177,16 +187,16 @@ export function HighlightCarousel({ items, currentUserEmail }: HighlightCarousel
       <div className="flex items-center justify-center gap-4 mt-6">
         <button
           onClick={prev}
-          disabled={displayedIndex === 0}
+          disabled={!wrapEnabled}
           aria-label="Previous slide"
           className="text-lg leading-none text-white/50 hover:text-[#FFEA9E]
                      disabled:opacity-25 disabled:cursor-not-allowed transition-colors"
         >
           ‹
         </button>
-        <span className="text-base tabular-nums">
-          <span className="text-[#FFEA9E] font-bold">{displayedIndex + 1}</span>
-          <span className="text-white/50">/{items.length}</span>
+        <span className="tabular-nums">
+          <span className="text-xl text-[#FFEA9E] font-bold">{displayedIndex + 1}</span>
+          <span className="text-base text-white/50"> / {items.length}</span>
         </span>
         <button
           onClick={next}

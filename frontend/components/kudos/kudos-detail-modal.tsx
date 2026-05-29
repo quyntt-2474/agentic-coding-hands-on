@@ -52,7 +52,7 @@ export function KudosDetailModal({ id }: KudosDetailModalProps) {
 
   const handleClose = useCallback(() => {
     if (window.history.length <= 1) {
-      router.push('/kudos');
+      router.push('/kudos', { scroll: false });
     } else {
       router.back();
     }
@@ -120,7 +120,6 @@ function DetailContent({ kudos, currentUserEmail, t }: DetailContentProps) {
   const [likeCount, setLikeCount] = useState(kudos.likeCount);
   const [toast, setToast] = useState<{ msg: string; show: boolean }>({ msg: '', show: false });
 
-  const isOwn = !!currentUserEmail && currentUserEmail === kudos.sender.email;
   const isAuthed = !!currentUserEmail;
 
   const showToast = (msg: string) => {
@@ -128,18 +127,27 @@ function DetailContent({ kudos, currentUserEmail, t }: DetailContentProps) {
     setTimeout(() => setToast((s) => ({ ...s, show: false })), 2500);
   };
 
+  const emitLikeChange = (likedNext: boolean, countNext: number) => {
+    window.dispatchEvent(
+      new CustomEvent('kudos:liked', {
+        detail: { id: kudos.id, likedByMe: likedNext, likeCount: countNext },
+      }),
+    );
+  };
+
   const handleLike = async () => {
     if (!isAuthed) return showToast(t.loginRequired);
-    if (isOwn) return;
     const nextLiked = !liked;
     const nextCount = likeCount + (nextLiked ? 1 : -1);
     setLiked(nextLiked);
     setLikeCount(nextCount);
+    emitLikeChange(nextLiked, nextCount);
     try {
       await apiFetch(`/kudos/${kudos.id}/like`, { method: nextLiked ? 'POST' : 'DELETE' });
     } catch {
-      setLiked(!nextLiked);
+      setLiked(liked);
       setLikeCount(likeCount);
+      emitLikeChange(liked, likeCount);
     }
   };
 
@@ -210,11 +218,8 @@ function DetailContent({ kudos, currentUserEmail, t }: DetailContentProps) {
       <div className="flex items-center justify-between">
         <button
           onClick={handleLike}
-          disabled={isOwn}
           aria-label="Like"
-          className={`flex items-center gap-2 transition-opacity ${
-            isOwn ? 'opacity-50 cursor-not-allowed' : 'hover:opacity-80'
-          }`}
+          className="flex items-center gap-2 transition-opacity hover:opacity-80"
         >
           <span className="text-2xl font-bold text-[#B8860B] tabular-nums">
             {numberFormatter.format(likeCount)}

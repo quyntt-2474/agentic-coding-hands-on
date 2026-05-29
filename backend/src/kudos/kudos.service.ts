@@ -24,13 +24,24 @@ export interface JwtUser {
   picture: string;
 }
 
+/** Tier label shown on the spotlight hover card. Threshold tuned to match
+ *  the "Legend Hero" badge that the Figma design hands out at 25 kudos. */
+function deriveBadge(kudosReceived: number): string {
+  if (kudosReceived >= 20) return 'Legend Hero';
+  if (kudosReceived >= 10) return 'Super Hero';
+  if (kudosReceived >= 5) return 'Rising Hero';
+  if (kudosReceived >= 1) return 'New Hero';
+  return '';
+}
+
 @Injectable()
 export class KudosService {
   constructor(
     @InjectRepository(Kudos) private kudosRepo: Repository<Kudos>,
     @InjectRepository(Like) private likeRepo: Repository<Like>,
     @InjectRepository(Hashtag) private hashtagRepo: Repository<Hashtag>,
-    @InjectRepository(KudosHashtag) private kudosHashtagRepo: Repository<KudosHashtag>,
+    @InjectRepository(KudosHashtag)
+    private kudosHashtagRepo: Repository<KudosHashtag>,
     @InjectRepository(User) private userRepo: Repository<User>,
     private dataSource: DataSource,
     private s3: S3Service,
@@ -55,7 +66,9 @@ export class KudosService {
   ): Promise<KudosCardDto> {
     // Generate pre-signed URLs for any attached images
     const imageUrls = kudos.imageKeys?.length
-      ? await Promise.all(kudos.imageKeys.map((key) => this.s3.getPresignedUrl(key)))
+      ? await Promise.all(
+          kudos.imageKeys.map((key) => this.s3.getPresignedUrl(key)),
+        )
       : [];
 
     // When anonymous, mask sender info with alias
@@ -84,7 +97,9 @@ export class KudosService {
     };
   }
 
-  private async fetchHashtags(kudosIds: string[]): Promise<Map<string, string[]>> {
+  private async fetchHashtags(
+    kudosIds: string[],
+  ): Promise<Map<string, string[]>> {
     if (!kudosIds.length) return new Map();
     const rows = await this.kudosHashtagRepo
       .createQueryBuilder('kh')
@@ -100,7 +115,10 @@ export class KudosService {
     return map;
   }
 
-  private async fetchLikedSet(kudosIds: string[], userEmail: string): Promise<Set<string>> {
+  private async fetchLikedSet(
+    kudosIds: string[],
+    userEmail: string,
+  ): Promise<Set<string>> {
     if (!kudosIds.length || !userEmail) return new Set();
     const likes = await this.likeRepo
       .createQueryBuilder('l')
@@ -115,7 +133,12 @@ export class KudosService {
   async findAll(
     query: KudosQueryDto,
     userEmail?: string,
-  ): Promise<{ data: KudosCardDto[]; total: number; page: number; limit: number }> {
+  ): Promise<{
+    data: KudosCardDto[];
+    total: number;
+    page: number;
+    limit: number;
+  }> {
     const page = Math.max(1, Number(query.page) || 1);
     const limit = Math.min(50, Math.max(1, Number(query.limit) || 20));
 
@@ -124,6 +147,9 @@ export class KudosService {
       .innerJoinAndSelect('k.sender', 'sender')
       .innerJoinAndSelect('k.receiver', 'receiver')
       .orderBy('k.createdAt', 'DESC')
+      // Unique tiebreaker: keeps OFFSET pagination deterministic when several
+      // kudos share the same createdAt — otherwise Load More can repeat/skip rows.
+      .addOrderBy('k.id', 'DESC')
       .skip((page - 1) * limit)
       .take(limit);
 
@@ -135,16 +161,22 @@ export class KudosService {
     }
 
     if (query.department) {
-      qb = qb.andWhere('receiver.department = :dept', { dept: query.department });
+      qb = qb.andWhere('receiver.department = :dept', {
+        dept: query.department,
+      });
     }
 
     const [kudosList, total] = await qb.getManyAndCount();
     const ids = kudosList.map((k) => k.id);
     const hashtagMap = await this.fetchHashtags(ids);
-    const likedSet = userEmail ? await this.fetchLikedSet(ids, userEmail) : new Set<string>();
+    const likedSet = userEmail
+      ? await this.fetchLikedSet(ids, userEmail)
+      : new Set<string>();
 
     const data = await Promise.all(
-      kudosList.map((k) => this.toCard(k, hashtagMap.get(k.id) ?? [], likedSet.has(k.id))),
+      kudosList.map((k) =>
+        this.toCard(k, hashtagMap.get(k.id) ?? [], likedSet.has(k.id)),
+      ),
     );
 
     return { data, total, page, limit };
@@ -194,27 +226,37 @@ export class KudosService {
     const kudosList = await qb.getMany();
     const ids = kudosList.map((k) => k.id);
     const hashtagMap = await this.fetchHashtags(ids);
-    const likedSet = userEmail ? await this.fetchLikedSet(ids, userEmail) : new Set<string>();
+    const likedSet = userEmail
+      ? await this.fetchLikedSet(ids, userEmail)
+      : new Set<string>();
 
     return Promise.all(
-      kudosList.map((k) => this.toCard(k, hashtagMap.get(k.id) ?? [], likedSet.has(k.id))),
+      kudosList.map((k) =>
+        this.toCard(k, hashtagMap.get(k.id) ?? [], likedSet.has(k.id)),
+      ),
     );
   }
 
-  async findSpotlight(): Promise<{ name: string; email: string; count: number }[]> {
-    const rows: { email: string; firstName: string; lastName: string; count: string }[] =
-      await this.kudosRepo
-        .createQueryBuilder('k')
-        .select('u.email', 'email')
-        .addSelect('u.firstName', 'firstName')
-        .addSelect('u.lastName', 'lastName')
-        .addSelect('COUNT(k.id)', 'count')
-        .innerJoin('k.receiver', 'u')
-        .groupBy('u.email')
-        .addGroupBy('u.firstName')
-        .addGroupBy('u.lastName')
-        .orderBy('count', 'DESC')
-        .getRawMany();
+  async findSpotlight(): Promise<
+    { name: string; email: string; count: number }[]
+  > {
+    const rows: {
+      email: string;
+      firstName: string;
+      lastName: string;
+      count: string;
+    }[] = await this.kudosRepo
+      .createQueryBuilder('k')
+      .select('u.email', 'email')
+      .addSelect('u.firstName', 'firstName')
+      .addSelect('u.lastName', 'lastName')
+      .addSelect('COUNT(k.id)', 'count')
+      .innerJoin('k.receiver', 'u')
+      .groupBy('u.email')
+      .addGroupBy('u.firstName')
+      .addGroupBy('u.lastName')
+      .orderBy('count', 'DESC')
+      .getRawMany();
 
     return rows.map((r) => ({
       email: r.email,
@@ -223,22 +265,71 @@ export class KudosService {
     }));
   }
 
-  async getStats(userEmail: string) {
-    const [kudosReceived, kudosSent, heartsResult, recentRecipients] = await Promise.all([
-      this.kudosRepo.count({ where: { receiverEmail: userEmail } }),
-      this.kudosRepo.count({ where: { senderEmail: userEmail } }),
-      this.likeRepo
-        .createQueryBuilder('l')
-        .innerJoin('l.kudos', 'k')
-        .where('k.receiverEmail = :email', { email: userEmail })
-        .getCount(),
-      this.kudosRepo
-        .createQueryBuilder('k')
-        .innerJoinAndSelect('k.receiver', 'r')
-        .orderBy('k.createdAt', 'DESC')
-        .take(10)
-        .getMany(),
+  async findSpotlightRecent(): Promise<
+    { email: string; name: string; createdAt: string }[]
+  > {
+    const rows = await this.kudosRepo
+      .createQueryBuilder('k')
+      .innerJoin('k.receiver', 'u')
+      .select('u.email', 'email')
+      .addSelect('u.firstName', 'firstName')
+      .addSelect('u.lastName', 'lastName')
+      .addSelect('k.createdAt', 'createdAt')
+      .orderBy('k.createdAt', 'DESC')
+      .limit(7)
+      .getRawMany<{
+        email: string;
+        firstName: string;
+        lastName: string;
+        createdAt: Date;
+      }>();
+
+    return rows.map((r) => ({
+      email: r.email,
+      name: `${r.firstName} ${r.lastName}`.trim(),
+      createdAt:
+        r.createdAt instanceof Date
+          ? r.createdAt.toISOString()
+          : new Date(r.createdAt).toISOString(),
+    }));
+  }
+
+  /** Compact profile shown when hovering a name in the spotlight word cloud. */
+  async getRecipientProfile(email: string) {
+    const [user, kudosReceived, kudosSent] = await Promise.all([
+      this.userRepo.findOne({ where: { email } }),
+      this.kudosRepo.count({ where: { receiverEmail: email } }),
+      this.kudosRepo.count({ where: { senderEmail: email } }),
     ]);
+    if (!user) throw new NotFoundException('User not found');
+    return {
+      email: user.email,
+      name: `${user.firstName} ${user.lastName}`.trim(),
+      picture: user.picture ?? '',
+      department: user.department ?? '',
+      kudosReceived,
+      kudosSent,
+      badge: deriveBadge(kudosReceived),
+    };
+  }
+
+  async getStats(userEmail: string) {
+    const [kudosReceived, kudosSent, heartsResult, recentRecipients] =
+      await Promise.all([
+        this.kudosRepo.count({ where: { receiverEmail: userEmail } }),
+        this.kudosRepo.count({ where: { senderEmail: userEmail } }),
+        this.likeRepo
+          .createQueryBuilder('l')
+          .innerJoin('l.kudos', 'k')
+          .where('k.receiverEmail = :email', { email: userEmail })
+          .getCount(),
+        this.kudosRepo
+          .createQueryBuilder('k')
+          .innerJoinAndSelect('k.receiver', 'r')
+          .orderBy('k.createdAt', 'DESC')
+          .take(10)
+          .getMany(),
+      ]);
 
     return {
       kudosReceived,
@@ -257,15 +348,21 @@ export class KudosService {
   async create(dto: CreateKudosDto, user: JwtUser): Promise<KudosCardDto> {
     return this.dataSource.transaction(async (em) => {
       // Upsert sender
-      await em.upsert(User, {
-        email: user.email,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        picture: user.picture,
-      }, ['email']);
+      await em.upsert(
+        User,
+        {
+          email: user.email,
+          firstName: user.firstName,
+          lastName: user.lastName,
+          picture: user.picture,
+        },
+        ['email'],
+      );
 
       // Ensure receiver exists (minimal record)
-      const existing = await em.findOne(User, { where: { email: dto.receiverEmail } });
+      const existing = await em.findOne(User, {
+        where: { email: dto.receiverEmail },
+      });
       if (!existing) {
         await em.save(User, {
           email: dto.receiverEmail,
@@ -281,7 +378,9 @@ export class KudosService {
         const prefix = `kudos-images/${user.email}/`;
         const invalid = dto.imageKeys.filter((k) => !k.startsWith(prefix));
         if (invalid.length) {
-          throw new BadRequestException('One or more image keys do not belong to the current user');
+          throw new BadRequestException(
+            'One or more image keys do not belong to the current user',
+          );
         }
       }
 
@@ -301,7 +400,11 @@ export class KudosService {
       for (const name of dto.hashtags) {
         await em.upsert(Hashtag, { name }, ['name']);
         const tag = await em.findOneOrFail(Hashtag, { where: { name } });
-        await em.upsert(KudosHashtag, { kudosId: kudos.id, hashtagId: tag.id }, ['kudosId', 'hashtagId']);
+        await em.upsert(
+          KudosHashtag,
+          { kudosId: kudos.id, hashtagId: tag.id },
+          ['kudosId', 'hashtagId'],
+        );
       }
 
       // Reload with relations
@@ -319,7 +422,9 @@ export class KudosService {
     const kudos = await this.kudosRepo.findOne({ where: { id: kudosId } });
     if (!kudos) throw new NotFoundException(`Kudos ${kudosId} not found`);
 
-    const existing = await this.likeRepo.findOne({ where: { kudosId, userEmail } });
+    const existing = await this.likeRepo.findOne({
+      where: { kudosId, userEmail },
+    });
     if (existing) throw new ConflictException('Already liked');
 
     await this.dataSource.transaction(async (em) => {
@@ -332,7 +437,9 @@ export class KudosService {
     const kudos = await this.kudosRepo.findOne({ where: { id: kudosId } });
     if (!kudos) throw new NotFoundException(`Kudos ${kudosId} not found`);
 
-    const existing = await this.likeRepo.findOne({ where: { kudosId, userEmail } });
+    const existing = await this.likeRepo.findOne({
+      where: { kudosId, userEmail },
+    });
     if (!existing) throw new NotFoundException('Not liked');
 
     await this.dataSource.transaction(async (em) => {

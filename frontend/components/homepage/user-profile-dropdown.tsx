@@ -4,6 +4,8 @@ import Image from 'next/image';
 import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import type { JwtUser } from '@/lib/jwt';
+import { useTranslations } from '@/lib/i18n';
+import { KudosToast } from '@/components/kudos/kudos-toast';
 
 interface UserProfileDropdownProps {
   user: JwtUser | null;
@@ -13,7 +15,9 @@ const FALLBACK_AVATAR = '/icons/icon-user.svg';
 
 export function UserProfileDropdown({ user }: UserProfileDropdownProps) {
   const router = useRouter();
+  const t = useTranslations();
   const [open, setOpen] = useState(false);
+  const [showToast, setShowToast] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -25,6 +29,12 @@ export function UserProfileDropdown({ user }: UserProfileDropdownProps) {
     document.addEventListener('mousedown', handler);
     return () => document.removeEventListener('mousedown', handler);
   }, []);
+
+  const handleProfile = () => {
+    setOpen(false);
+    setShowToast(true);
+    setTimeout(() => setShowToast(false), 2500);
+  };
 
   const handleLogout = () => {
     localStorage.removeItem('auth_token');
@@ -67,7 +77,7 @@ export function UserProfileDropdown({ user }: UserProfileDropdownProps) {
           <button
             type="button"
             role="menuitem"
-            onClick={() => setOpen(false)}
+            onClick={handleProfile}
             className="group flex items-center justify-between px-3 py-2 rounded-lg text-sm font-bold text-white bg-white/[0.06] hover:bg-white/[0.12] transition-colors [text-shadow:0_0_6px_rgba(255,234,158,0.55)]"
           >
             <span>Profile</span>
@@ -108,6 +118,8 @@ export function UserProfileDropdown({ user }: UserProfileDropdownProps) {
           </button>
         </div>
       )}
+
+      <KudosToast message={t.kudosComingSoon} visible={showToast} />
     </div>
   );
 }

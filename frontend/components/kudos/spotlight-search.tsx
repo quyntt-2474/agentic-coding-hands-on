@@ -7,28 +7,60 @@ interface SpotlightSearchProps {
   onChange: (v: string) => void;
 }
 
+/**
+ * Search input shown over the Spotlight word cloud. Visual style matches the
+ * "Tìm kiếm Sunner" pill in the home action bar (golden border, translucent
+ * gold fill, bold Montserrat white text) — only padding is tightened so it
+ * fits inside the smaller header strip of the board.
+ */
 export function SpotlightSearch({ value, onChange }: SpotlightSearchProps) {
   const t = useTranslations();
   return (
-    <div className="relative w-full max-w-xs">
-      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-white/40 text-sm">🔍</span>
+    <div
+      className="flex items-center gap-3 px-4 py-2.5 rounded-full border border-[#998C5F]
+                 bg-[rgba(255,234,158,0.10)] focus-within:border-[#FFEA9E]/80
+                 hover:border-[#FFEA9E]/80 transition-colors"
+    >
+      <SearchIcon className="w-5 h-5 shrink-0 text-white" />
       <input
         type="text"
         value={value}
         onChange={(e) => onChange(e.target.value)}
+        onKeyDown={(e) => {
+          if (e.key === 'Escape') onChange('');
+        }}
         placeholder={t.spotlightSearch}
         maxLength={100}
-        className="w-full pl-9 pr-8 py-2 rounded-full bg-white/5 border border-white/10 text-sm text-white placeholder-white/30 focus:outline-none focus:border-[#FFEA9E]/40"
+        className="flex-1 bg-transparent outline-none text-[14px]
+                   font-[family-name:var(--font-montserrat)] text-white
+                   placeholder:text-white/40 tracking-[0.15px] min-w-0"
       />
       {value && (
         <button
+          type="button"
           onClick={() => onChange('')}
-          className="absolute right-3 top-1/2 -translate-y-1/2 text-white/40 hover:text-white text-xs"
+          className="shrink-0 text-white/50 hover:text-white text-xs leading-none"
           aria-label="Clear"
         >
           ✕
         </button>
       )}
     </div>
+  );
+}
+
+function SearchIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      viewBox="0 0 20 20"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={1.8}
+      className={className}
+      aria-hidden="true"
+    >
+      <circle cx="8.5" cy="8.5" r="5.5" />
+      <line x1="12.5" y1="12.5" x2="17" y2="17" strokeLinecap="round" />
+    </svg>
   );
 }
