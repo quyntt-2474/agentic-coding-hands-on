@@ -34,9 +34,9 @@ function KudosHeroInner() {
 
       {/* Left content: subtitle (italic gold) + KUDOS logo */}
       <div className="relative z-10 max-w-6xl mx-40 px-6 md:px-10 pt-[144px] pb-6">
-        <div className="flex flex-col gap-2 md:gap-3 max-w-[480px]">
+        <div className="flex flex-col gap-2 md:gap-3 w-fit">
           <p className="text-3xl font-bold text-[#FFEA9E]
-                        font-[family-name:var(--font-montserrat)] leading-snug">
+                        font-[family-name:var(--font-montserrat)] leading-snug whitespace-nowrap">
             {t.kudosLiveTitle}
           </p>
           <Image

@@ -31,6 +31,23 @@ export interface SpotlightWord {
   count: number;
 }
 
+export interface SpotlightRecent {
+  email: string;
+  name: string;
+  createdAt: string;
+}
+
+export interface RecipientProfile {
+  email: string;
+  name: string;
+  picture: string;
+  department: string;
+  kudosReceived: number;
+  kudosSent: number;
+  /** Tier label derived from kudosReceived (Rising Star → Legend Hero) */
+  badge: string;
+}
+
 export interface KudosStats {
   kudosReceived: number;
   kudosSent: number;

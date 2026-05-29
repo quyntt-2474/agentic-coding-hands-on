@@ -11,7 +11,7 @@ interface TimeLeft {
 
 function DigitBox({ digit }: { digit: string }) {
   return (
-    <div className="relative inline-flex items-center justify-center w-[51px] h-[82px] rounded-lg">
+    <div className="relative inline-flex items-center justify-center w-[64px] h-[102px] rounded-lg">
       <div
         className="absolute inset-0 rounded-lg opacity-50"
         style={{
@@ -22,7 +22,7 @@ function DigitBox({ digit }: { digit: string }) {
       />
       <span
         className="relative z-10 text-white leading-none tabular-nums"
-        style={{ fontFamily: "var(--font-digital-numbers), monospace", fontSize: '49px', fontWeight: 400 }}
+        style={{ fontFamily: "var(--font-digital-numbers), monospace", fontSize: '61px', fontWeight: 400 }}
       >
         {digit}
       </span>
@@ -38,7 +38,7 @@ function TimeUnit({ value, label }: { value: number; label: string }) {
         <DigitBox digit={padded[0]} />
         <DigitBox digit={padded[1]} />
       </div>
-      <span className="text-[12px] font-bold font-[family-name:var(--font-montserrat)] text-white/60 tracking-[0.2em] uppercase">
+      <span className="text-[14px] font-bold font-[family-name:var(--font-montserrat)] text-white/60 tracking-[0.2em] uppercase">
         {label}
       </span>
     </div>
@@ -80,9 +80,9 @@ export function CountdownTimer() {
   return (
     <div className="flex items-start gap-3">
       <TimeUnit value={timeLeft.days} label={t.days} />
-      <span className="text-[32px] font-bold text-white/50 mt-3 leading-none">:</span>
+      <span className="text-[40px] font-bold text-white/50 mt-4 leading-none">:</span>
       <TimeUnit value={timeLeft.hours} label={t.hours} />
-      <span className="text-[32px] font-bold text-white/50 mt-3 leading-none">:</span>
+      <span className="text-[40px] font-bold text-white/50 mt-4 leading-none">:</span>
       <TimeUnit value={timeLeft.minutes} label={t.minutes} />
     </div>
   );

@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { KudosCard } from '@/lib/types/kudos';
 import { formatKudosDate } from '@/lib/format-date';
@@ -22,7 +23,9 @@ const numberFormatter = new Intl.NumberFormat('vi-VN');
 /**
  * Highlight kudos card — Figma node 1764:5008 / 1764:5014 (master via 335:9620).
  * Cream card with vertical sender→receiver header, inner content box,
- * image gallery row, large like count, and a single Copy Link action.
+ * image gallery row, large like count, Copy Link + Xem chi tiết. The entire
+ * surface is also a navigation link to the detail page; interactive children
+ * sit above the overlay link via `z-10`.
  */
 export function HighlightKudosCard({ kudos, currentUserEmail }: HighlightKudosCardProps) {
   const t = useTranslations();
@@ -72,11 +75,20 @@ export function HighlightKudosCard({ kudos, currentUserEmail }: HighlightKudosCa
 
   return (
     <div
-      className="h-full flex flex-col gap-4 rounded-2xl bg-[#FFF8E1] border-4 border-[#FFEA9E] pt-6 px-6 pb-4 shadow-lg"
+      className="relative h-full flex flex-col gap-4 rounded-2xl bg-[#FFF8E1] border-4 border-[#FFEA9E] pt-6 px-6 pb-4 shadow-lg"
       style={{ fontFamily: 'var(--font-montserrat)' }}
     >
+      {/* Overlay link — clicking blank areas of the card navigates to detail.
+          Interactive children below use `relative z-10` to stay clickable. */}
+      <Link
+        href={`/kudos/${kudos.id}`}
+        scroll={false}
+        aria-label="View kudos detail"
+        className="absolute inset-0 rounded-2xl focus-visible:ring-2 focus-visible:ring-[#B8860B] focus-visible:outline-none"
+      />
+
       {/* Sender → ✈ → Receiver — vertical stacks + paper plane in middle */}
-      <div className="flex items-start justify-between gap-2">
+      <div className="relative z-10 flex items-start justify-between gap-2">
         <UserVerticalBlock {...kudos.sender} />
         <PaperPlaneIcon className="w-6 h-6 text-[#00101A] mt-5 shrink-0" />
         <UserVerticalBlock {...kudos.receiver} />
@@ -138,8 +150,8 @@ export function HighlightKudosCard({ kudos, currentUserEmail }: HighlightKudosCa
       {/* Gold divider */}
       <hr className="border-0 h-px bg-[#FFEA9E]" />
 
-      {/* Action row — large like count on left, Copy Link on right */}
-      <div className="flex items-center justify-between">
+      {/* Action row — large like count on left, Copy Link + Xem chi tiết on right */}
+      <div className="relative z-10 flex items-center justify-between">
         <button
           onClick={handleLike}
           aria-label="Like"
@@ -164,7 +176,7 @@ export function HighlightKudosCard({ kudos, currentUserEmail }: HighlightKudosCa
           </button>
 
           <button
-            onClick={() => router.push(`/kudos/${kudos.id}`)}
+            onClick={() => router.push(`/kudos/${kudos.id}`, { scroll: false })}
             className="flex items-center gap-1.5 text-sm font-medium text-[#444] hover:text-[#B8860B] transition-colors"
           >
             <span>{t.viewKudo}</span>

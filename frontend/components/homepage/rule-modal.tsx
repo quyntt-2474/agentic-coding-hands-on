@@ -4,12 +4,12 @@ import Image from 'next/image';
 import { useEffect, useState } from 'react';
 
 const BADGES = [
-  { id: 'REVIVAL',              gradient: 'from-orange-700 via-amber-800 to-stone-900' },
-  { id: 'TOUCH OF LIGHT',       gradient: 'from-sky-300 via-blue-500 to-indigo-800' },
-  { id: 'STAY GOLD',            gradient: 'from-yellow-300 via-amber-500 to-yellow-800' },
-  { id: 'FLOW TO HORIZON',      gradient: 'from-teal-400 via-cyan-600 to-blue-800' },
-  { id: 'BEYOND THE BOUNDARY',  gradient: 'from-purple-400 via-violet-600 to-purple-900' },
-  { id: 'ROOT FUTHER',          gradient: 'from-green-600 via-emerald-700 to-green-900' },
+  { id: 'REVIVAL',              src: '/badges/badge-revival.png',             height: 88  },
+  { id: 'TOUCH OF LIGHT',       src: '/badges/badge-touch-of-light.png',      height: 104 },
+  { id: 'STAY GOLD',            src: '/badges/badge-stay-gold.png',           height: 88  },
+  { id: 'FLOW TO HORIZON',      src: '/badges/badge-flow-to-horizon.png',     height: 104 },
+  { id: 'BEYOND THE BOUNDARY',  src: '/badges/badge-beyond-the-boundary.png', height: 104 },
+  { id: 'ROOT FUTHER',          src: '/badges/badge-root-futher.png',         height: 104 },
 ];
 
 const HERO_LEVELS = [
@@ -148,17 +148,20 @@ export function RuleModal({ isOpen, onClose, onVietKudos }: RuleModalProps) {
                 Mỗi lời Kudos bạn gửi sẽ được đăng tải trên hệ thống và nhận về những lượt ❤️ từ cộng đồng Sunner. Cứ mỗi 5 lượt ❤️, bạn sẽ được mở 1 Secret Box, với cơ hội nhận về một trong 6 icon độc quyền của SAA.
               </p>
 
-              {/* 6 badges — 3-column grid, circular */}
+              {/* 6 badges — 3-column grid */}
               <div className="grid grid-cols-3 gap-x-4 gap-y-5">
                 {BADGES.map((badge) => (
                   <div key={badge.id} className="flex flex-col items-center gap-2">
-                    <div
-                      className={`w-[80px] h-[80px] rounded-full bg-gradient-to-br ${badge.gradient}`}
-                      aria-hidden="true"
-                    />
-                    <span className="text-white text-[10px] font-bold font-[family-name:var(--font-montserrat)] leading-[14px] uppercase text-center">
-                      {badge.id}
-                    </span>
+                    <div className="h-[104px] flex items-start justify-center">
+                      <Image
+                        src={badge.src}
+                        alt={badge.id}
+                        width={80}
+                        height={badge.height}
+                        className="w-[80px] h-auto select-none pointer-events-none"
+                        draggable={false}
+                      />
+                    </div>
                   </div>
                 ))}
               </div>

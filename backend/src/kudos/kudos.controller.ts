@@ -60,6 +60,18 @@ export class KudosController {
     return this.kudosService.findSpotlight();
   }
 
+  /** GET /kudos/spotlight/recent — 7 most recent receivers w/ timestamps (public) */
+  @Get('spotlight/recent')
+  findSpotlightRecent() {
+    return this.kudosService.findSpotlightRecent();
+  }
+
+  /** GET /kudos/recipient/:email/profile — compact profile for spotlight hover card (public) */
+  @Get('recipient/:email/profile')
+  getRecipientProfile(@Param('email') email: string) {
+    return this.kudosService.getRecipientProfile(email);
+  }
+
   /** GET /kudos/stats — current user stats (auth required) */
   @UseGuards(JwtAuthGuard)
   @Get('stats')

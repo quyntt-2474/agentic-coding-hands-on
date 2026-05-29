@@ -68,7 +68,7 @@ export function KudosActionBar({
   };
 
   const handleViewDetails = () => {
-    router.push(`/kudos/${kudosId}`);
+    router.push(`/kudos/${kudosId}`, { scroll: false });
   };
 
   return (

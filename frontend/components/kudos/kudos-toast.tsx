@@ -1,12 +1,23 @@
 'use client';
 
+import { useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
+
 interface KudosToastProps {
   message: string;
   visible: boolean;
 }
 
 export function KudosToast({ message, visible }: KudosToastProps) {
-  return (
+  // Render into document.body via a portal so the fixed-position toast anchors
+  // to the viewport, not an ancestor with a containing block (e.g. the header's
+  // backdrop-blur). Guarded for SSR — portals require the DOM.
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+
+  if (!mounted) return null;
+
+  return createPortal(
     <div
       role="status"
       aria-live="polite"
@@ -19,6 +30,7 @@ export function KudosToast({ message, visible }: KudosToastProps) {
       ].join(' ')}
     >
       {message}
-    </div>
+    </div>,
+    document.body,
   );
 }

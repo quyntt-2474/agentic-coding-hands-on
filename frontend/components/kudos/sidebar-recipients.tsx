@@ -66,7 +66,7 @@ export function SidebarRecipients() {
                     {r.name.charAt(0).toUpperCase()}
                   </div>
                 )}
-                <span className="text-xs text-white/70 truncate">{r.name}</span>
+                <span className="text-sm font-bold text-white truncate">{r.name}</span>
               </Link>
             </li>
           ))}
