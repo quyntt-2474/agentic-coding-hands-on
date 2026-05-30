@@ -1,41 +1,29 @@
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+# AI agents files
+.claude/*
+!.claude/settings.json
+!.claude/commands/
+.claude/commands/*
 
-# dependencies
-/node_modules
-/.pnp
-.pnp.*
-.yarn/*
-!.yarn/patches
-!.yarn/plugins
-!.yarn/releases
-!.yarn/versions
+!.claude/skills/
+.claude/skills/*
+!.claude/skills/figma-inspect/
+!.claude/skills/figma-inspect/**
 
-# testing
-/coverage
+backend/.claude/*
+frontend/.claude/*
 
-# next.js
-/.next/
-/out/
+docs/*
 
-# production
-/build
+.mind.*
+mind.*
+plans/**/*
 
-# misc
-.DS_Store
-*.pem
 
-# debug
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-.pnpm-debug.log*
+# MoMorph / MCP
+.mcp.json
+mcp.json
 
-# env files (can opt-in for committing if needed)
-.env*
 
-# vercel
-.vercel
+release-manifest.json
 
-# typescript
-*.tsbuildinfo
-next-env.d.ts
+.playwright-mcp/

@@ -1,0 +1,20 @@
+const BASE = process.env.NEXT_PUBLIC_BACKEND_URL ?? 'http://localhost:3000';
+
+export async function apiFetch<T>(path: string, options?: RequestInit): Promise<T> {
+  const token =
+    typeof window !== 'undefined' ? localStorage.getItem('auth_token') : null;
+  const res = await fetch(`${BASE}${path}`, {
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      ...options?.headers,
+    },
+  });
+  if (!res.ok) throw new Error(`API error ${res.status}`);
+  // Handle empty bodies (e.g. NestJS handlers returning `Promise<void>` → 201/204
+  // with no payload). Calling res.json() on those throws "Unexpected end of JSON
+  // input" and surfaces as a fake failure to callers.
+  const text = await res.text();
+  return (text ? JSON.parse(text) : undefined) as T;
+}
