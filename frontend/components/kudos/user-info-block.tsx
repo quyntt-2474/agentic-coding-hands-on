@@ -20,7 +20,6 @@ interface UserVerticalBlockProps {
 
 /** Vertical user block (avatar / name / dept-rank pill) used on cream kudos cards. */
 export function UserVerticalBlock({
-  email,
   name,
   picture,
   department,
@@ -30,7 +29,7 @@ export function UserVerticalBlock({
   const rank = rankLabel(stars);
   return (
     <div className="flex flex-col items-center gap-2 min-w-0 flex-1">
-      <Link href={`/profile/${email}`} className="shrink-0">
+      <div className="shrink-0">
         {picture ? (
           <Image
             src={picture}
@@ -48,13 +47,10 @@ export function UserVerticalBlock({
             {name.charAt(0).toUpperCase()}
           </div>
         )}
-      </Link>
-      <Link
-        href={`/profile/${email}`}
-        className="text-sm font-bold text-[#00101A] hover:text-[#B8860B] transition-colors truncate max-w-full text-center"
-      >
+      </div>
+      <span className="text-sm font-bold text-[#00101A] truncate max-w-full text-center">
         {name}
-      </Link>
+      </span>
       <span className="text-[10px] font-semibold text-[#00101A] bg-[#FFEA9E] rounded-full px-2 py-0.5 truncate max-w-full">
         {department}
         {rank && ` • ${rank}`}
@@ -86,7 +82,7 @@ export function UserInfoBlock({
   return (
     <div className="flex items-center gap-2">
       {/* Avatar */}
-      <Link href={`/profile/${email}`} className="shrink-0">
+      <Link href={`/profile/${encodeURIComponent(email)}`} className="shrink-0">
         {picture ? (
           <Image
             src={picture}
@@ -109,7 +105,7 @@ export function UserInfoBlock({
       {/* Info */}
       <div className="flex flex-col min-w-0">
         <Link
-          href={`/profile/${email}`}
+          href={`/profile/${encodeURIComponent(email)}`}
           className={`${textSize} font-semibold text-white hover:text-[#FFEA9E] transition-colors truncate`}
         >
           {name}

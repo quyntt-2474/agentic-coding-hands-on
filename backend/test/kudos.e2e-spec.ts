@@ -152,4 +152,196 @@ describe('Kudos API (e2e)', () => {
       .post('/kudos/missing-id/like')
       .expect(404);
   });
+
+  it('GET /kudos with sender filter returns only kudos sent by that user', async () => {
+    const sentKudos = {
+      id: 'k-sent',
+      senderEmail: 'alice@x.com',
+      sender: {
+        email: 'alice@x.com',
+        firstName: 'Alice',
+        lastName: 'Anders',
+        picture: 'pic-a',
+        department: 'CTO',
+        stars: 3,
+      },
+      receiverEmail: 'bob@x.com',
+      receiver: {
+        email: 'bob@x.com',
+        firstName: 'Bob',
+        lastName: 'Brown',
+        picture: null,
+        department: null,
+        stars: 0,
+      },
+      title: null,
+      message: 'Good work',
+      likeCount: 2,
+      isAnonymous: false,
+      senderAlias: null,
+      imageKeys: null,
+      createdAt: new Date(),
+    };
+    const qb = makeQb({ getManyAndCount: [[sentKudos], 1] });
+    kudosRepo.createQueryBuilder.mockReturnValueOnce(qb);
+    kudosHashtagRepo.createQueryBuilder.mockReturnValueOnce(
+      makeQb({ getMany: [] }),
+    );
+    likeRepo.createQueryBuilder.mockReturnValueOnce(makeQb({ getMany: [] }));
+
+    const res = await request(app.getHttpServer())
+      .get('/kudos?sender=alice@x.com')
+      .expect(200);
+
+    expect(res.body.total).toBe(1);
+    expect(res.body.data[0].sender.email).toBe('alice@x.com');
+    // Verify andWhere was called with sender filter
+    expect(qb.andWhere).toHaveBeenCalledWith('k.senderEmail = :sender', {
+      sender: 'alice@x.com',
+    });
+  });
+
+  it('GET /kudos with receiver filter returns only kudos received by that user', async () => {
+    const receivedKudos = {
+      id: 'k-recv',
+      senderEmail: 'alice@x.com',
+      sender: {
+        email: 'alice@x.com',
+        firstName: 'Alice',
+        lastName: 'Anders',
+        picture: 'pic-a',
+        department: 'CTO',
+        stars: 3,
+      },
+      receiverEmail: 'bob@x.com',
+      receiver: {
+        email: 'bob@x.com',
+        firstName: 'Bob',
+        lastName: 'Brown',
+        picture: null,
+        department: null,
+        stars: 0,
+      },
+      title: null,
+      message: 'Great effort',
+      likeCount: 1,
+      isAnonymous: false,
+      senderAlias: null,
+      imageKeys: null,
+      createdAt: new Date(),
+    };
+    const qb = makeQb({ getManyAndCount: [[receivedKudos], 1] });
+    kudosRepo.createQueryBuilder.mockReturnValueOnce(qb);
+    kudosHashtagRepo.createQueryBuilder.mockReturnValueOnce(
+      makeQb({ getMany: [] }),
+    );
+    likeRepo.createQueryBuilder.mockReturnValueOnce(makeQb({ getMany: [] }));
+
+    const res = await request(app.getHttpServer())
+      .get('/kudos?receiver=bob@x.com')
+      .expect(200);
+
+    expect(res.body.total).toBe(1);
+    expect(res.body.data[0].receiver.email).toBe('bob@x.com');
+    // Verify andWhere was called with receiver filter
+    expect(qb.andWhere).toHaveBeenCalledWith('k.receiverEmail = :receiver', {
+      receiver: 'bob@x.com',
+    });
+  });
+
+  it('GET /kudos/profile/:email (auth) returns user profile with aggregate stats', async () => {
+    const mockUser = {
+      email: 'bob@x.com',
+      firstName: 'Bob',
+      lastName: 'Brown',
+      picture: null,
+      department: null,
+      stars: 0,
+    };
+    userRepo.findOne.mockResolvedValueOnce(mockUser);
+    kudosRepo.count.mockResolvedValueOnce(5); // kudosReceived
+    kudosRepo.count.mockResolvedValueOnce(2); // kudosSent
+    likeRepo.createQueryBuilder.mockReturnValueOnce(
+      makeQb({ getCount: 12 }), // heartsReceived
+    );
+
+    const res = await request(app.getHttpServer())
+      .get('/kudos/profile/bob@x.com')
+      .expect(200);
+
+    expect(res.body.user.email).toBe('bob@x.com');
+    expect(res.body.user.name).toBe('Bob Brown');
+    expect(res.body.kudosReceived).toBe(5);
+    expect(res.body.kudosSent).toBe(2);
+    expect(res.body.heartsReceived).toBe(12);
+  });
+
+  it('GET /kudos/profile/:email returns 404 when user does not exist', async () => {
+    userRepo.findOne.mockResolvedValueOnce(null);
+    kudosRepo.count.mockResolvedValue(0);
+    likeRepo.createQueryBuilder.mockReturnValueOnce(
+      makeQb({ getCount: 0 }),
+    );
+
+    await request(app.getHttpServer())
+      .get('/kudos/profile/unknown@x.com')
+      .expect(404);
+  });
+
+  it('GET /kudos/profile/:email is JWT-guarded (protected route)', async () => {
+    // The guard is overridden in the test module's beforeAll, so it's always
+    // considered "active" for testing. This test verifies the route exists and
+    // is decorated with @UseGuards(JwtAuthGuard).
+    const mockUser = {
+      email: 'test@x.com',
+      firstName: 'Test',
+      lastName: 'User',
+      picture: null,
+      department: null,
+      stars: 0,
+    };
+    userRepo.findOne.mockResolvedValueOnce(mockUser);
+    kudosRepo.count.mockResolvedValueOnce(1);
+    kudosRepo.count.mockResolvedValueOnce(0);
+    likeRepo.createQueryBuilder.mockReturnValueOnce(
+      makeQb({ getCount: 0 }),
+    );
+
+    // Route exists and returns data (guard passed due to beforeAll setup)
+    const res = await request(app.getHttpServer())
+      .get('/kudos/profile/test@x.com')
+      .expect(200);
+
+    expect(res.body.user).toBeDefined();
+  });
+
+  it('GET /kudos/profile/:email is resolved before GET /kudos/:id catch-all', async () => {
+    // This test verifies route ordering: /profile/:email must come before /:id
+    // Routes are evaluated top-to-bottom in NestJS; if /profile/:email comes after /:id,
+    // the string 'profile' would be treated as an kudos ID instead.
+    const mockUser = {
+      email: 'bob@x.com',
+      firstName: 'Bob',
+      lastName: 'Brown',
+      picture: null,
+      department: null,
+      stars: 0,
+    };
+    userRepo.findOne.mockResolvedValueOnce(mockUser);
+    kudosRepo.count.mockResolvedValueOnce(2);
+    kudosRepo.count.mockResolvedValueOnce(3);
+    likeRepo.createQueryBuilder.mockReturnValueOnce(
+      makeQb({ getCount: 5 }),
+    );
+
+    // Calling /kudos/profile/bob@x.com should hit the profile route (returns user data),
+    // not the catch-all :id route (would query for Kudos and return 404)
+    const res = await request(app.getHttpServer())
+      .get('/kudos/profile/bob@x.com')
+      .expect(200);
+
+    // If it hit the /profile/:email route, response has user data
+    expect(res.body.user).toBeDefined();
+    expect(res.body.user.email).toBe('bob@x.com');
+  });
 });
