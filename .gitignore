@@ -3,7 +3,7 @@
 !.claude/settings.json
 !.claude/commands/
 .claude/commands/*
-!.claude/commands/review-and-pr.md
+!.claude/commands/feature-ship-pr.md
 !.claude/commands/feature-brainstorm.md
 !.claude/commands/feature-plan.md
 !.claude/commands/feature-implement.md
