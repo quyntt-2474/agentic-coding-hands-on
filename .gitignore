@@ -3,11 +3,23 @@
 !.claude/settings.json
 !.claude/commands/
 .claude/commands/*
+!.claude/commands/feature-ship-pr.md
+!.claude/commands/feature-brainstorm.md
+!.claude/commands/feature-plan.md
+!.claude/commands/feature-implement.md
+
 
 !.claude/skills/
 .claude/skills/*
 !.claude/skills/figma-inspect/
 !.claude/skills/figma-inspect/**
+!.claude/skills/explore-feature/
+
+!.claude/agents/
+.claude/agents/*
+!.claude/agents/feature-brainstormer.md
+!.claude/agents/feature-plan-builder.md
+!.claude/agents/feature-implementer.md
 
 backend/.claude/*
 frontend/.claude/*

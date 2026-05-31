@@ -1,4 +1,10 @@
+'use client';
+
+import { useTranslations } from '@/lib/i18n';
+
 export function LoginFooter() {
+  const t = useTranslations();
+
   return (
     <footer className="fixed bottom-0 inset-x-0 z-20 bg-[#060e1c]/90 border-t border-white/10 py-3">
       <p
@@ -10,7 +16,7 @@ export function LoginFooter() {
           lineHeight: '24px',
         }}
       >
-        Bản quyền thuộc về Sun* © 2025
+        {t.copyright}
       </p>
     </footer>
   );

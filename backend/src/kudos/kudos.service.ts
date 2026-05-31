@@ -166,6 +166,17 @@ export class KudosService {
       });
     }
 
+    // Profile tabs: restrict the feed to one user as sender (sent) or receiver (received).
+    if (query.sender) {
+      qb = qb.andWhere('k.senderEmail = :sender', { sender: query.sender });
+    }
+
+    if (query.receiver) {
+      qb = qb.andWhere('k.receiverEmail = :receiver', {
+        receiver: query.receiver,
+      });
+    }
+
     const [kudosList, total] = await qb.getManyAndCount();
     const ids = kudosList.map((k) => k.id);
     const hashtagMap = await this.fetchHashtags(ids);
@@ -310,6 +321,27 @@ export class KudosService {
       kudosReceived,
       kudosSent,
       badge: deriveBadge(kudosReceived),
+    };
+  }
+
+  /** Full profile + aggregate stats for the profile page (any user by email). */
+  async getProfile(email: string) {
+    const [user, kudosReceived, kudosSent, heartsReceived] = await Promise.all([
+      this.userRepo.findOne({ where: { email } }),
+      this.kudosRepo.count({ where: { receiverEmail: email } }),
+      this.kudosRepo.count({ where: { senderEmail: email } }),
+      this.likeRepo
+        .createQueryBuilder('l')
+        .innerJoin('l.kudos', 'k')
+        .where('k.receiverEmail = :email', { email })
+        .getCount(),
+    ]);
+    if (!user) throw new NotFoundException('User not found');
+    return {
+      user: this.toUserDto(user),
+      kudosReceived,
+      kudosSent,
+      heartsReceived,
     };
   }
 

@@ -1,4 +1,5 @@
 import {
+  IsEmail,
   IsInt,
   IsOptional,
   IsString,
@@ -21,6 +22,18 @@ export class KudosQueryDto {
   @IsString()
   @MaxLength(100)
   department?: string;
+
+  /** Filter to kudos sent by this user (email). Used by the profile "Đã gửi" tab. */
+  @IsOptional()
+  @IsEmail()
+  @MaxLength(320)
+  sender?: string;
+
+  /** Filter to kudos received by this user (email). Used by the profile "Đã nhận" tab. */
+  @IsOptional()
+  @IsEmail()
+  @MaxLength(320)
+  receiver?: string;
 
   /** 1-based page number. */
   @IsOptional()

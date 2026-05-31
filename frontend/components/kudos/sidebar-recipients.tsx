@@ -50,7 +50,7 @@ export function SidebarRecipients() {
           {recipients.map((r) => (
             <li key={r.email}>
               <Link
-                href={`/profile/${r.email}`}
+                href={`/profile/${encodeURIComponent(r.email)}`}
                 className="flex items-center gap-2 hover:opacity-80 transition-opacity"
               >
                 {r.picture ? (
