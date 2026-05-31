@@ -1,11 +1,12 @@
 "use client";
 
-import Image from "next/image";
 import { useEffect, useState } from "react";
 import { KudosStats } from "@/lib/types/kudos";
 import { apiFetch } from "@/lib/api";
 import { useTranslations } from "@/lib/i18n";
 import { KudosToast } from "./kudos-toast";
+
+const SECRET_BOX_THRESHOLD = 5;
 
 export function SidebarStats() {
   const t = useTranslations();
@@ -23,6 +24,7 @@ export function SidebarStats() {
   }, []);
 
   const handleOpenGift = () => {
+    if ((stats?.kudosReceived ?? 0) < SECRET_BOX_THRESHOLD) return;
     setShowToast(true);
     setTimeout(() => setShowToast(false), 2500);
   };
@@ -54,6 +56,8 @@ export function SidebarStats() {
     { label: t.secretBoxUnopened, value: 0 },
   ];
 
+  const canOpenBox = (stats.kudosReceived ?? 0) >= SECRET_BOX_THRESHOLD;
+
   return (
     <div className="flex flex-col gap-4">
       {kudosRows.map((row) => (
@@ -66,12 +70,20 @@ export function SidebarStats() {
         <StatRow key={row.label} {...row} />
       ))}
 
-      {/* Solid gold button — matches Figma: bg #FFEA9E, radius 8px, dark text, icon right */}
+      {/* Solid gold button — matches Figma: bg #FFEA9E, radius 8px, dark text, icon right.
+          Wrapped in a `group` so the locked hint shows only on hover (the disabled
+          button can't receive hover events itself, so the wrapper carries it). */}
+      <div className="relative group">
       <button
         onClick={handleOpenGift}
-        className="w-full flex items-center justify-center gap-2 py-4 rounded-lg
+        disabled={!canOpenBox}
+        aria-disabled={!canOpenBox}
+        className={`w-full flex items-center justify-center gap-2 py-4 rounded-lg
                    bg-[#FFEA9E] text-[#0a1628] text-base font-bold
-                   hover:bg-[#ffe570] active:scale-[0.98] transition-all"
+                   transition-all
+                   ${canOpenBox
+                     ? "hover:bg-[#ffe570] active:scale-[0.98]"
+                     : "opacity-50 cursor-not-allowed hover:bg-[#FFEA9E]"}`}
       >
         {t.openGiftButton}
         {/* MM_MEDIA_Open Gift icon from public/icons */}
@@ -88,6 +100,19 @@ export function SidebarStats() {
           />
         </svg>
       </button>
+
+      {/* Hover-only tooltip: appears only when the button is locked and the user hovers. */}
+      {!canOpenBox && (
+        <span
+          role="tooltip"
+          className="pointer-events-none absolute left-1/2 -top-2 -translate-x-1/2 -translate-y-full
+                     whitespace-nowrap rounded-md bg-[#00101A] px-3 py-1.5 text-xs text-white
+                     shadow-lg opacity-0 transition-opacity duration-150 group-hover:opacity-100"
+        >
+          {t.secretBoxLockedHint}
+        </span>
+      )}
+      </div>
 
       <KudosToast message={t.kudosComingSoon} visible={showToast} />
     </div>
