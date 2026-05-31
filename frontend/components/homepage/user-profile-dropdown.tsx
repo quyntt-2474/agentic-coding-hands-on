@@ -4,8 +4,6 @@ import Image from 'next/image';
 import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import type { JwtUser } from '@/lib/jwt';
-import { useTranslations } from '@/lib/i18n';
-import { KudosToast } from '@/components/kudos/kudos-toast';
 
 interface UserProfileDropdownProps {
   user: JwtUser | null;
@@ -15,9 +13,7 @@ const FALLBACK_AVATAR = '/icons/icon-user.svg';
 
 export function UserProfileDropdown({ user }: UserProfileDropdownProps) {
   const router = useRouter();
-  const t = useTranslations();
   const [open, setOpen] = useState(false);
-  const [showToast, setShowToast] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -32,8 +28,9 @@ export function UserProfileDropdown({ user }: UserProfileDropdownProps) {
 
   const handleProfile = () => {
     setOpen(false);
-    setShowToast(true);
-    setTimeout(() => setShowToast(false), 2500);
+    if (user?.email) {
+      router.push(`/profile/${encodeURIComponent(user.email)}`);
+    }
   };
 
   const handleLogout = () => {
@@ -118,8 +115,6 @@ export function UserProfileDropdown({ user }: UserProfileDropdownProps) {
           </button>
         </div>
       )}
-
-      <KudosToast message={t.kudosComingSoon} visible={showToast} />
     </div>
   );
 }

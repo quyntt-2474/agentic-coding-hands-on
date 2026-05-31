@@ -2,6 +2,7 @@
 
 import Image from 'next/image';
 import { useEffect, useState } from 'react';
+import { useTranslations, type Translations } from '@/lib/i18n';
 
 const BADGES = [
   { id: 'REVIVAL',              src: '/badges/badge-revival.png',             height: 88  },
@@ -12,27 +13,16 @@ const BADGES = [
   { id: 'ROOT FUTHER',          src: '/badges/badge-root-futher.png',         height: 104 },
 ];
 
-const HERO_LEVELS = [
-  {
-    name: 'New Hero',
-    condition: 'Có 1-4 người gửi Kudos cho bạn',
-    desc: 'Hành trình lan tỏa điều tốt đẹp bắt đầu – những lời cảm ơn và ghi nhận đầu tiên đã tìm đến bạn.',
-  },
-  {
-    name: 'Rising Hero',
-    condition: 'Có 5-9 người gửi Kudos cho bạn',
-    desc: 'Hình ảnh bạn đang lớn dần trong trái tim đồng đội bằng sự tử tế và cống hiến của mình.',
-  },
-  {
-    name: 'Super Hero',
-    condition: 'Có 10–20 người gửi Kudos cho bạn',
-    desc: 'Bạn đã trở thành biểu tượng được tin tưởng và yêu quý, người luôn sẵn sàng hỗ trợ và được nhiều đồng đội nhớ đến.',
-  },
-  {
-    name: 'Legend Hero',
-    condition: 'Có hơn 20 người gửi Kudos cho bạn',
-    desc: 'Bạn đã trở thành huyền thoại – người để lại dấu ấn khó quên trong tập thể bằng trái tim và hành động của mình.',
-  },
+// Stable hero-level identifiers; copy resolved per-language via i18n keys.
+const HERO_LEVELS: {
+  name: string;
+  conditionKey: keyof Translations;
+  descKey: keyof Translations;
+}[] = [
+  { name: 'New Hero',    conditionKey: 'ruleHeroNewCondition',    descKey: 'ruleHeroNewDesc'    },
+  { name: 'Rising Hero', conditionKey: 'ruleHeroRisingCondition', descKey: 'ruleHeroRisingDesc' },
+  { name: 'Super Hero',  conditionKey: 'ruleHeroSuperCondition',  descKey: 'ruleHeroSuperDesc'  },
+  { name: 'Legend Hero', conditionKey: 'ruleHeroLegendCondition', descKey: 'ruleHeroLegendDesc' },
 ];
 
 interface RuleModalProps {
@@ -43,6 +33,7 @@ interface RuleModalProps {
 
 /** Thể lệ Kudos — slide-up panel on mobile, right-drawer on desktop */
 export function RuleModal({ isOpen, onClose, onVietKudos }: RuleModalProps) {
+  const t = useTranslations();
   const [mounted, setMounted] = useState(false);
   const [visible, setVisible] = useState(false);
 
@@ -76,7 +67,7 @@ export function RuleModal({ isOpen, onClose, onVietKudos }: RuleModalProps) {
       <div
         role="dialog"
         aria-modal="true"
-        aria-label="Thể lệ"
+        aria-label={t.ruleModalTitle}
         className={`fixed z-[61] inset-x-0 bottom-0 md:inset-y-0 md:right-0 md:left-auto flex flex-col
           transition-transform duration-300 ease-out
           ${visible
@@ -91,12 +82,12 @@ export function RuleModal({ isOpen, onClose, onVietKudos }: RuleModalProps) {
             {/* Header */}
             <div className="flex items-center justify-between">
               <h2 className="text-[#FFEA9E] text-[22px] font-bold font-[family-name:var(--font-montserrat)] leading-7">
-                Thể lệ
+                {t.ruleModalTitle}
               </h2>
               <button
                 type="button"
                 onClick={onClose}
-                aria-label="Đóng"
+                aria-label={t.closeDialog}
                 className="w-8 h-8 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20 transition-colors text-white text-xl leading-none"
               >
                 ×
@@ -106,10 +97,10 @@ export function RuleModal({ isOpen, onClose, onVietKudos }: RuleModalProps) {
             {/* ── Section 1: NGƯỜI NHẬN KUDOS ── */}
             <div className="flex flex-col gap-4">
               <h3 className="text-[#FFEA9E] text-[22px] font-bold font-[family-name:var(--font-montserrat)] leading-7">
-                NGƯỜI NHẬN KUDOS: HUY HIỆU HERO CHO NHỮNG ẢNH HƯỞNG TÍCH CỰC
+                {t.ruleRecipientSectionTitle}
               </h3>
               <p className="text-white text-[16px] font-bold font-[family-name:var(--font-montserrat)] leading-6 tracking-[0.5px]">
-                Dựa trên số lượng đồng đội gửi trao Kudos, bạn sẽ sở hữu Huy hiệu Hero tương ứng, được hiển thị trực tiếp cạnh tên profile
+                {t.ruleRecipientSectionDesc}
               </p>
 
               {/* Hero level rows */}
@@ -125,12 +116,12 @@ export function RuleModal({ isOpen, onClose, onVietKudos }: RuleModalProps) {
                         {hero.name}
                       </span>
                       <span className="text-white text-[16px] font-bold font-[family-name:var(--font-montserrat)] leading-6 tracking-[0.5px]">
-                        {hero.condition}
+                        {t[hero.conditionKey]}
                       </span>
                     </div>
                     {/* Description */}
                     <p className="text-white text-[14px] font-bold font-[family-name:var(--font-montserrat)] leading-5 tracking-[0.1px]">
-                      {hero.desc}
+                      {t[hero.descKey]}
                     </p>
                   </div>
                 ))}
@@ -142,10 +133,10 @@ export function RuleModal({ isOpen, onClose, onVietKudos }: RuleModalProps) {
             {/* ── Section 2: NGƯỜI GỬI KUDOS ── */}
             <div className="flex flex-col gap-4">
               <h3 className="text-[#FFEA9E] text-[22px] font-bold font-[family-name:var(--font-montserrat)] leading-7">
-                NGƯỜI GỬI KUDOS: SƯU TẬP TRỌN BỘ 6 ICON, NHẬN NGAY PHẦN QUÀ BÍ ẨN
+                {t.ruleSenderSectionTitle}
               </h3>
               <p className="text-white text-[16px] font-bold font-[family-name:var(--font-montserrat)] leading-6 tracking-[0.5px]">
-                Mỗi lời Kudos bạn gửi sẽ được đăng tải trên hệ thống và nhận về những lượt ❤️ từ cộng đồng Sunner. Cứ mỗi 5 lượt ❤️, bạn sẽ được mở 1 Secret Box, với cơ hội nhận về một trong 6 icon độc quyền của SAA.
+                {t.ruleSenderSectionDesc}
               </p>
 
               {/* 6 badges — 3-column grid */}
@@ -167,16 +158,16 @@ export function RuleModal({ isOpen, onClose, onVietKudos }: RuleModalProps) {
               </div>
 
               <p className="text-white text-[16px] font-bold font-[family-name:var(--font-montserrat)] leading-6 tracking-[0.5px]">
-                Những Sunner thu thập trọn bộ 6 icon sẽ nhận về một phần quà bí ẩn từ SAA 2025.
+                {t.ruleSenderRewardNote}
               </p>
 
               {/* KUDOS QUỐC DÂN */}
               <div className="flex flex-col gap-2 pt-4 border-t border-[#2e3940]">
                 <h3 className="text-[#FFEA9E] text-[24px] font-bold font-[family-name:var(--font-montserrat)] leading-8">
-                  KUDOS QUỐC DÂN
+                  {t.ruleNationalKudosTitle}
                 </h3>
                 <p className="text-white text-[16px] font-bold font-[family-name:var(--font-montserrat)] leading-6 tracking-[0.5px]">
-                  5 Kudos nhận về nhiều ❤️ nhất toàn Sun* sẽ chính thức trở thành Kudos Quốc Dân và được trao phần quà đặc biệt từ SAA 2025: Root Further.
+                  {t.ruleNationalKudosDesc}
                 </p>
               </div>
             </div>
@@ -192,7 +183,7 @@ export function RuleModal({ isOpen, onClose, onVietKudos }: RuleModalProps) {
               <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
                 <path d="M12 4L4 12M4 4l8 8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
               </svg>
-              Đóng
+              {t.closeDialog}
             </button>
             <button
               type="button"
@@ -206,7 +197,7 @@ export function RuleModal({ isOpen, onClose, onVietKudos }: RuleModalProps) {
                 height={16}
                 className="brightness-0 shrink-0"
               />
-              Viết KUDOS
+              {t.ruleWriteKudosButton}
             </button>
           </div>
         </div>

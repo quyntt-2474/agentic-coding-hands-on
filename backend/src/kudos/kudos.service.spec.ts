@@ -185,6 +185,75 @@ describe('KudosService', () => {
       expect(res.data[0].likedByMe).toBe(false);
       expect(likeRepo.createQueryBuilder).not.toHaveBeenCalled();
     });
+
+    it('applies sender filter to return only sent kudos', async () => {
+      const sentKudos = makeKudos({
+        id: 's1',
+        senderEmail: 'alice@x.com',
+        message: 'sent by alice',
+      });
+      const qb = makeQb({ getManyAndCount: [[sentKudos], 1] });
+      kudosRepo.createQueryBuilder.mockReturnValue(qb);
+
+      const res = await service.findAll(
+        { sender: 'alice@x.com', page: 1, limit: 20 },
+        'me@x.com',
+      );
+
+      expect(qb.andWhere).toHaveBeenCalledWith('k.senderEmail = :sender', {
+        sender: 'alice@x.com',
+      });
+      expect(res.total).toBe(1);
+      expect(res.data[0].sender.email).toBe('alice@x.com');
+    });
+
+    it('applies receiver filter to return only received kudos', async () => {
+      const receivedKudos = makeKudos({
+        id: 'r1',
+        receiverEmail: 'bob@x.com',
+        message: 'received by bob',
+      });
+      const qb = makeQb({ getManyAndCount: [[receivedKudos], 1] });
+      kudosRepo.createQueryBuilder.mockReturnValue(qb);
+
+      const res = await service.findAll(
+        { receiver: 'bob@x.com', page: 1, limit: 20 },
+        'me@x.com',
+      );
+
+      expect(qb.andWhere).toHaveBeenCalledWith(
+        'k.receiverEmail = :receiver',
+        { receiver: 'bob@x.com' },
+      );
+      expect(res.total).toBe(1);
+      expect(res.data[0].receiver.email).toBe('bob@x.com');
+    });
+
+    it('combines sender and receiver filters with other filters', async () => {
+      const qb = makeQb({ getManyAndCount: [[], 0] });
+      kudosRepo.createQueryBuilder.mockReturnValue(qb);
+
+      await service.findAll({
+        sender: 'alice@x.com',
+        receiver: 'bob@x.com',
+        hashtag: 'Aim High',
+        department: 'CTO',
+        page: 2,
+        limit: 10,
+      });
+
+      // Verify both filters were applied
+      expect(qb.andWhere).toHaveBeenCalledWith('k.senderEmail = :sender', {
+        sender: 'alice@x.com',
+      });
+      expect(qb.andWhere).toHaveBeenCalledWith(
+        'k.receiverEmail = :receiver',
+        { receiver: 'bob@x.com' },
+      );
+      // Verify pagination
+      expect(qb.skip).toHaveBeenCalledWith(10); // (2-1)*10
+      expect(qb.take).toHaveBeenCalledWith(10);
+    });
   });
 
   describe('findOne', () => {
@@ -307,6 +376,31 @@ describe('KudosService', () => {
       expect(res.kudosSent).toBe(2);
       expect(res.heartsReceived).toBe(9);
       expect(res.recentRecipients[0].name).toBe('Bob Brown');
+    });
+  });
+
+  describe('getProfile', () => {
+    it('returns user profile with aggregate stats (hearts + sent + received)', async () => {
+      userRepo.findOne.mockResolvedValue(receiver);
+      kudosRepo.count
+        .mockResolvedValueOnce(7) // kudosReceived
+        .mockResolvedValueOnce(3); // kudosSent
+      likeRepo.createQueryBuilder.mockReturnValue(makeQb({ getCount: 15 }));
+      const res = await service.getProfile('bob@x.com');
+      expect(res.user.email).toBe('bob@x.com');
+      expect(res.user.name).toBe('Bob Brown');
+      expect(res.kudosReceived).toBe(7);
+      expect(res.kudosSent).toBe(3);
+      expect(res.heartsReceived).toBe(15);
+    });
+
+    it('throws NotFoundException when user does not exist', async () => {
+      userRepo.findOne.mockResolvedValue(null);
+      kudosRepo.count.mockResolvedValue(0);
+      likeRepo.createQueryBuilder.mockReturnValue(makeQb({ getCount: 0 }));
+      await expect(service.getProfile('unknown@x.com')).rejects.toThrow(
+        NotFoundException,
+      );
     });
   });
 

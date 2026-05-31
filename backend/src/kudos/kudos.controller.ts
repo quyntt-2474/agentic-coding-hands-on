@@ -79,6 +79,14 @@ export class KudosController {
     return this.kudosService.getStats(req.user.email);
   }
 
+  /** GET /kudos/profile/:email — profile + aggregate stats for the profile page (auth required).
+   *  Declared before ':id' so the catch-all route does not swallow it. */
+  @UseGuards(JwtAuthGuard)
+  @Get('profile/:email')
+  getProfile(@Param('email') email: string) {
+    return this.kudosService.getProfile(email);
+  }
+
   /** GET /kudos/:id — single kudos detail (auth required) */
   @UseGuards(JwtAuthGuard)
   @Get(':id')

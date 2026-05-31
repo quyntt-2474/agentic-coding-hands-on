@@ -15,6 +15,7 @@ describe('KudosController', () => {
       findSpotlight: jest.fn().mockResolvedValue('spotlight'),
       findSpotlightRecent: jest.fn().mockResolvedValue('recent'),
       getRecipientProfile: jest.fn().mockResolvedValue('profile'),
+      getProfile: jest.fn().mockResolvedValue('fullprofile'),
       getStats: jest.fn().mockResolvedValue('stats'),
       findOne: jest.fn().mockResolvedValue('one'),
       create: jest.fn().mockResolvedValue('created'),
@@ -57,6 +58,11 @@ describe('KudosController', () => {
   it('getStats delegates with email', async () => {
     await controller.getStats(req as never);
     expect(service.getStats).toHaveBeenCalledWith('me@x.com');
+  });
+
+  it('getProfile delegates with email and is JWT-guarded', async () => {
+    await controller.getProfile('bob@x.com');
+    expect(service.getProfile).toHaveBeenCalledWith('bob@x.com');
   });
 
   it('findOne delegates with id and email', async () => {

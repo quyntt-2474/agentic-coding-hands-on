@@ -1,4 +1,5 @@
 # Sun\* Kudos
+## Link Demo: https://ssa-two-theta.vercel.app/
 
 Bảng ghi nhận (kudos board) nội bộ: nhân viên gửi lời cảm ơn / ghi nhận tới đồng nghiệp, gắn hashtag, like, xem highlight và spotlight theo thời gian thực.
 
@@ -9,7 +10,7 @@ Monorepo gồm **frontend** (Next.js) và **backend** (NestJS), xác thực bằ
 ```
 frontend/   — Next.js 16.2.6 (React 19, TypeScript, Tailwind CSS v4, Tiptap, d3-cloud)  → http://localhost:3001
 backend/    — NestJS 11 (TypeScript, TypeORM, Passport, JWT, AWS SDK v3)                → http://localhost:3000
-db          — PostgreSQL 16 (Docker Compose, database: saa_kudos)                       → localhost:5432
+db          — PostgreSQL 16 (Docker Compose/Local, database: saa_kudos)                       → localhost:5432
 ```
 
 **Luồng đăng nhập:**
@@ -24,7 +25,7 @@ Browser → GET /auth/google → Google OAuth → /auth/google/callback → JWT 
 ## Yêu cầu
 
 - Node.js >= 20, npm >= 10
-- Docker + Docker Compose (cho PostgreSQL)
+- Docker + Docker Compose (cho PostgreSQL - optional)
 - Tài khoản Google Cloud với OAuth2 credentials
 - (Tuỳ chọn) AWS S3 bucket + credentials để upload ảnh kudos
 
@@ -32,7 +33,7 @@ Browser → GET /auth/google → Google OAuth → /auth/google/callback → JWT 
 
 ## Cài đặt & chạy
 
-### 1. Khởi động database
+### 1. Khởi động database (hoặc sử dụng local database thay cho docker)
 
 ```bash
 docker compose up -d db   # PostgreSQL 16 trên cổng 5432, database saa_kudos
@@ -116,10 +117,11 @@ Truy cập: **http://localhost:3001/login**
 |--------|------|:----:|-------|
 | GET | `/auth/google` | – | Bắt đầu OAuth, redirect tới Google |
 | GET | `/auth/google/callback` | – | Callback, phát JWT rồi redirect về frontend |
-| GET | `/kudos` | JWT | Feed phân trang (lọc theo hashtag/department) |
+| GET | `/kudos` | JWT | Feed phân trang (lọc theo hashtag/department/sender/receiver) |
 | GET | `/kudos/highlight` | JWT | Top kudos theo lượt like |
 | GET | `/kudos/spotlight` | – | Dữ liệu word cloud |
 | GET | `/kudos/spotlight/recent` | – | 7 người nhận kudos gần nhất |
+| GET | `/kudos/profile/:email` | JWT | Profile + tổng hợp stats của user (kudosReceived, kudosSent, heartsReceived) |
 | GET | `/kudos/stats` | JWT | Thống kê của user hiện tại |
 | GET | `/kudos/:id` | JWT | Chi tiết một kudos |
 | POST | `/kudos` | JWT | Tạo kudos mới |
@@ -193,6 +195,7 @@ KudosHashtag (kudosId→Kudos, hashtagId→Hashtag)    # bảng nối many-to-ma
     │   ├── login/              # Trang đăng nhập
     │   ├── auth/callback/      # Nhận JWT sau OAuth
     │   ├── kudos/              # Trang kudos + @modal parallel route cho detail
+    │   ├── profile/[email]/    # Trang hồ sơ người dùng (stats, kudos đã gửi/nhận)
     │   ├── awards/ · countdown/ · community-standards/
     │   └── layout.tsx · page.tsx
     ├── components/
