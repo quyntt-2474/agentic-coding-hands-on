@@ -46,15 +46,12 @@ export class UsersService {
 
   /**
    * Search users by name or email (case-insensitive).
-   * An empty query returns all users (up to `limit`).
+   * An empty query returns all users.
    */
-  async search(q: string, limit = 10): Promise<UserSearchResult[]> {
+  async search(q: string): Promise<UserSearchResult[]> {
     const term = q?.trim() ?? '';
 
-    const qb = this.repo
-      .createQueryBuilder('u')
-      .orderBy('u.firstName', 'ASC')
-      .take(limit);
+    const qb = this.repo.createQueryBuilder('u').orderBy('u.firstName', 'ASC');
 
     if (term) {
       qb.where(
