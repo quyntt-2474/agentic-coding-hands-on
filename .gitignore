@@ -29,6 +29,8 @@ docs/*
 .mind.*
 mind.*
 plans/**/*
+!plans/260601-0938-rebuild-spec/
+!plans/260601-0938-rebuild-spec/**
 
 
 # MoMorph / MCP
