@@ -3,7 +3,7 @@ import { User } from '../database/entities/user.entity';
 
 function makeQb(users: Partial<User>[]) {
   const qb: Record<string, jest.Mock> = {};
-  ['orderBy', 'take', 'where'].forEach((m) => (qb[m] = jest.fn(() => qb)));
+  ['orderBy', 'where'].forEach((m) => (qb[m] = jest.fn(() => qb)));
   qb.getMany = jest.fn().mockResolvedValue(users);
   return qb;
 }
