@@ -1,12 +1,19 @@
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
+import { UsersService } from '../users/users.service';
 import { GoogleUserDto } from './dto/google-user.dto';
 
 @Injectable()
 export class AuthService {
-  constructor(private jwtService: JwtService) {}
+  constructor(
+    private jwtService: JwtService,
+    private usersService: UsersService,
+  ) {}
 
-  login(user: GoogleUserDto): string {
+  async login(user: GoogleUserDto): Promise<string> {
+    // Persist (or refresh) the user record on every successful login.
+    await this.usersService.upsertFromGoogle(user);
+
     const payload = {
       sub: user.email,
       email: user.email,
