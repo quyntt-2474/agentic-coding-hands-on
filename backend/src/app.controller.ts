@@ -9,4 +9,10 @@ export class AppController {
   getHello(): string {
     return this.appService.getHello();
   }
+
+  // Lightweight liveness endpoint used by the keep-alive ping (Render free tier).
+  @Get('health')
+  health(): { status: string } {
+    return { status: 'ok' };
+  }
 }
