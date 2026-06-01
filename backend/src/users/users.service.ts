@@ -15,6 +15,36 @@ export class UsersService {
   constructor(@InjectRepository(User) private repo: Repository<User>) {}
 
   /**
+   * Create the user on first login, or refresh their profile on subsequent
+   * logins. Accumulated state (`stars`, `department`) is preserved.
+   */
+  async upsertFromGoogle(profile: {
+    email: string;
+    firstName: string;
+    lastName: string;
+    picture: string;
+  }): Promise<User> {
+    const existing = await this.repo.findOne({
+      where: { email: profile.email },
+    });
+
+    if (existing) {
+      existing.firstName = profile.firstName;
+      existing.lastName = profile.lastName;
+      existing.picture = profile.picture;
+      return this.repo.save(existing);
+    }
+
+    const user = this.repo.create({
+      email: profile.email,
+      firstName: profile.firstName,
+      lastName: profile.lastName,
+      picture: profile.picture,
+    });
+    return this.repo.save(user);
+  }
+
+  /**
    * Search users by name or email (case-insensitive).
    * An empty query returns all users (up to `limit`).
    */
